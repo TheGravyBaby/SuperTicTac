@@ -38,10 +38,8 @@ def printGameState(array):
                 if (j + 1) % 3 != 0:
                     if array[i][j] == 1:
                         cprint(str(array[i][j]), 'white', 'on_red', end = ' ')
-
                     if array[i][j] == 2:
                         cprint(str(array[i][j]), 'white', 'on_blue', end = ' ')
-
                     if array[i][j] == 0:
                         if [i,j] in listValidMoves():
                             cprint(str(array[i][j]), 'yellow', end = ' ')
@@ -52,12 +50,9 @@ def printGameState(array):
                 else:
                     if array[i][j] == 1:
                         cprint(str(array[i][j]), 'white', 'on_red', end = '      ')
-
                     if array[i][j] == 2:
                         cprint(str(array[i][j]), 'white', 'on_blue', end = '      ')
-                        
                     if array[i][j] == 0:
-
                         if [i,j] in listValidMoves():
                             cprint(str(array[i][j]), 'yellow', end = '      ')
                         else:
@@ -92,7 +87,6 @@ def getUserInput(player):
         try: 
             coordinateArray.append(int(coordinate[1]) - 1)
             coordinateArray.append(int(coordinate[0]) - 1)
-
             if checkInputValidity(coordinateArray):
                 changeGameState(gameStateArray, coordinateArray, player)
                 printGameState(gameStateArray)
@@ -105,7 +99,6 @@ def getUserInput(player):
                         input()  
                 else:  
                     getUserInput(player)
-
                 if player == 1:
                     player = 2
                 else:
@@ -215,7 +208,6 @@ def makeWinArray(array):
             if array[3 * i][3 * j] == array[3 * i + 1][3 * j + 1] == array[3 * i + 2][3 * j + 2] != 0:
                     winArray[i][j] = array[3 * i][3 * j]
             # backdiagonal
-            # 0,1 
             if array[3 * i + 2][3 * j] == array[3 * i + 1][3 * j + 1] == array[3 * i][3 * j + 2] != 0:
                     winArray[i][j] = array[3 * i + 2][3 * j]
     return winArray
@@ -227,10 +219,10 @@ def checkForWin(array):
             return win[i][0]                                 # simply returns the player number for the win 
         if win[0][i] == win[1][i] == win[2][i] != 0:         # check the three verticals
             return win[i][0]                                      
-        if win[0][0]  == win[1][1] == win[2][2] != 0:        # check for each diagonal
-            return win[0][0]      
-        if win[2][0] == win[1][1] == win[0][2] != 0:
-            return win[0][0]
+    if win[0][0]  == win[1][1] == win[2][2] != 0:            # check for each diagonal
+        return win[0][0]      
+    if win[2][0] == win[1][1] == win[0][2] != 0:
+        return win[0][0]
     else: 
         return 0           
 

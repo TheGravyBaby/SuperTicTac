@@ -17,17 +17,22 @@ def clear():
 # prints the state of the tic tac toe board
 def printGameState(array):
     clear()
-    print("===========================")
-    print("     SUPER TIC TAC TOE     ")
-    print("===========================")
-    print("1 2 3      4 5 6      7 8 9")
-    print("===========================")
-    for i in range(len(array)):                 # for every row of the array
-        if i == 0 or i % 3 != 0:                # if it factorable by 3, print an extra line as spacer
-            print(" ")
-        else:
-            print(" ")
-            print(" ")
+    print("--------------------------------")
+    print("         SUPER TIC TAC TOE      ")
+    print("--------------------------------")
+    print("    1 2 3      4 5 6      7 8 9 ")
+    print("--------------------------------")
+    
+    for i in range(len(array)):                             # for every row of the array
+        if i== 0: 
+            print("{} | ".format(i + 1), end = "")
+        if i != 0 and i % 3 != 0:                           # if it factorable by 3, print an extra line as spacer
+            print("")
+            print("{} | ".format(i + 1), end = "")
+        if i != 0 and i % 3 == 0 :
+            print("")
+            print("  | ")
+            print("{} | ".format(i + 1), end = "")
         
         for j in range(len(array[i])):     
                 if (j + 1) % 3 != 0:
@@ -58,8 +63,8 @@ def printGameState(array):
                         else:
                             print(str(array[i][j]), end = '      ')
     print("")
-    print("")                
-    print("===========================")
+    #print("")                
+    print("--------------------------------")
 
 def getUserInput(player):
     if player == 1:
@@ -79,6 +84,7 @@ def getUserInput(player):
             numberList += str(move[1] + 1)
             numberList += str(move[0] + 1)
             numberList += "  " 
+        print("Coordinates are using an xy string. No commas, no spaces, no nothin!")
         print(numberList)
         getUserInput(player)
     else:
@@ -187,10 +193,10 @@ def changeGameState(array, coordinate, player):
     array[ coordinate[0] ][ coordinate[1] ] = player
 
 # exploit the +1 +2 +3 feature of a small board section
-# horozontile relationship [a,b], [a+1,b], [a+2,b]
+# horizontile relationship [a,b], [a+1,b], [a+2,b]
 # vertical relationship [a, b], [a, b+1], [a, b+2] 
-# diagonal relationship [a,b], [a+1,b+1], [a+1,b+1]
-
+# diagonal relationship [a,b], [a+1,b+1], [a+1,b+1] also works with minus
+# loopy loopy loops
 def makeWinArray(array):
     winArray = [[0]*3, [0]*3, [0]*3]
 
@@ -217,18 +223,14 @@ def makeWinArray(array):
 def checkForWin(array):
     win = makeWinArray(array)
     for i in range(3):
-        if win[i][0] == win[i][1] == win[i][2] != 0:         #check the three horizontiles
-            return win[i][0]
-            break                                            # simply returns the player number for the win 
+        if win[i][0] == win[i][1] == win[i][2] != 0:         # check the three horizontiles
+            return win[i][0]                                 # simply returns the player number for the win 
         if win[0][i] == win[1][i] == win[2][i] != 0:         # check the three verticals
-            return win[i][0]
-            break                                
-        if win[0][0]  == win[1][1] == win[2][2] != 0:
-            return win[0][0]
-            break
+            return win[i][0]                                      
+        if win[0][0]  == win[1][1] == win[2][2] != 0:        # check for each diagonal
+            return win[0][0]      
         if win[2][0] == win[1][1] == win[0][2] != 0:
             return win[0][0]
-            break
     else: 
         return 0           
 

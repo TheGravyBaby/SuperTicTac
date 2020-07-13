@@ -96,43 +96,43 @@ def printGameState(array):
     print("---------------------------------")
 
 def getUserInput(player):
-    if player == 1:
-        print(colors.bg.red + "Player {}".format(player) + colors.reset, end = ' ')
-    if player == 2:
-        print(colors.bg.blue + "Player {}".format(player) + colors.reset, end = ' ')
-    print("please enter in a valid coordinate, or enter r for rules, or v for valid moves...")
-    # if len(moveHistory) > 0:
-    #     print(listValidMoves())
-    #print(makeWinArray(gameStateArray))
-    # print(moveHistory)
-    coordinate = input()
-    if coordinate == "v":
-        numberList = ""
-        validMoves = listValidMoves()
-        for move in validMoves:
-            numberList += str(move[1] + 1)
-            numberList += str(move[0] + 1)
-            numberList += "  "
-        print("Coordinates are inputed as xy. No commas, no spaces, no nothin!")
-        print("Valid moves:")
-        print("")
-        print(numberList)
-        print("")
-        getUserInput(player) 
+    if listValidMoves() !=0:
+        if player == 1:
+            print(colors.bg.red + "Player {}".format(player) + colors.reset, end = ' ')
+        if player == 2:
+            print(colors.bg.blue + "Player {}".format(player) + colors.reset, end = ' ')
+        print("please enter in a valid coordinate, or enter r for rules, or v for valid moves...")
+        # if len(moveHistory) > 0:
+        #     print(listValidMoves())
+        #print(makeWinArray(gameStateArray))
+        # print(moveHistory)
+        coordinate = input()
+        if coordinate == "v":
+            numberList = ""
+            validMoves = listValidMoves()
+            for move in validMoves:
+                numberList += str(move[1] + 1)
+                numberList += str(move[0] + 1)
+                numberList += "  "
+            print("Coordinates are inputed as xy. No commas, no spaces, no nothin!")
+            print("Valid moves:")
+            print("")
+            print(numberList)
+            print("")
+            getUserInput(player) 
 
-    if coordinate == "r":
-       
-        print("1. The goal of the game is to win Tic Tac Toe on the large game board")
-        print("2. To win a tile on the large board, you must win Tic Tac Toe on its respective smaller board")
-        print("3. The previous move will determine which board will be in play for the next move")
-        print("   For example, if you play the upper right hand corner on a small board the next")
-        print("   big board play will be the upper right hand board")
-        print("4. If sent to a board which has already been won, all available tiles will be playable")
-        print("")
-        getUserInput(player)
-    else:
-        coordinateArray = []
-        if listValidMoves() != 0:
+        if coordinate == "r":
+        
+            print("1. The goal of the game is to win Tic Tac Toe on the large game board")
+            print("2. To win a tile on the large board, you must win Tic Tac Toe on its respective smaller board")
+            print("3. The previous move will determine which board will be in play for the next move")
+            print("   For example, if you play the upper right hand corner on a small board the next")
+            print("   big board play will be the upper right hand board")
+            print("4. If sent to a board which has already been won, all available tiles will be playable")
+            print("")
+            getUserInput(player)
+        else:
+            coordinateArray = []
             try: 
                 coordinateArray.append(int(coordinate[1]) - 1)
                 coordinateArray.append(int(coordinate[0]) - 1)
@@ -160,8 +160,9 @@ def getUserInput(player):
             except:
                 print("Invalid Input")
                 getUserInput(player)
-        else: 
-            print("DRAW: NO VALID MOVES") 
+    else: 
+        print("Game is a draw")
+        input()
 
 def projectCoordinateToNextBoardZone(move):
     output = []

@@ -66,7 +66,7 @@ def getUserInput(player):
         cprint("Player {}".format(player), 'white', 'on_red', end = ' ')
     if player == 2:
         cprint("Player {}".format(player), 'white', 'on_blue', end = ' ')
-    print("please enter in a valid coordinate, or enter h to list valid moves:")
+    print("please enter in a valid coordinate, or enter h for help:")
     # if len(moveHistory) > 0:
     #     print(listValidMoves())
     #print(makeWinArray(gameStateArray))
@@ -79,7 +79,14 @@ def getUserInput(player):
             numberList += str(move[1] + 1)
             numberList += str(move[0] + 1)
             numberList += "  " 
-        print("Coordinates are using an xy string. No commas, no spaces, no nothin!")
+        print("1. The goal of the game is to win Tic Tak Toe on the large game board")
+        print("2. To win a tile on the large board, you must win Tic Tak Toe on its respective smaller board")
+        print("3. The previous move will determine which board will be in play for the next move")
+        print("      Eg If you play the upper right hand corner on a small board")
+        print("      the next big board play will be the upper right hand board")
+        print("4. If sent to a board which has already been won, all available tiles will be playable")
+        print("")
+        print("Coordinates inputs are xy. No commas, no spaces, no nothin! Valid moves are:")
         print(numberList)
         getUserInput(player)
     else:
@@ -141,8 +148,6 @@ def listValidMoves():
         bb0 = bigBoard[0]
         bb1 = bigBoard[1]
         wins = makeWinArray(gameStateArray)
-        
-
         if wins[bb0][bb1] == 1 or wins[bb0][bb1] == 2:                                      # if the return board has already been won by either 1 or 2
             for i in range(9):
                 for j in range(9):                                                         

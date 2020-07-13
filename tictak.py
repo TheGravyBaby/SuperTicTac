@@ -1,13 +1,47 @@
 import os
 import sys
-from termcolor import colored, cprint
 
-#variables
+#create some colors to help with game
+#taken from https://www.geeksforgeeks.org/print-colors-python-terminal/
+class colors:
+    reset='\033[0m'
+    bold='\033[01m'
+    disable='\033[02m'
+    underline='\033[04m'
+    reverse='\033[07m'
+    strikethrough='\033[09m'
+    invisible='\033[08m'
+    class fg: 
+        black='\033[30m'
+        red='\033[31m'
+        green='\033[32m'
+        orange='\033[33m'
+        blue='\033[34m'
+        purple='\033[35m'
+        cyan='\033[36m'
+        lightgrey='\033[37m'
+        darkgrey='\033[90m'
+        lightred='\033[91m'
+        lightgreen='\033[92m'
+        yellow='\033[93m'
+        lightblue='\033[94m'
+        pink='\033[95m'
+        lightcyan='\033[96m'
+    class bg: 
+        black='\033[40m'
+        red='\033[41m'
+        green='\033[42m'
+        orange='\033[43m'
+        blue='\033[44m'
+        purple='\033[45m'
+        cyan='\033[46m'
+        lightgrey='\033[47m'
+
+
 gameStateArray = [ [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9]   # do this as multiplying by 9 will copy index through the columns, weird
 oneWin = False
 twoWin = False
 moveHistory = []
-currentPlayer = 1
 
 #functions
 #clears text on output window
@@ -37,57 +71,64 @@ def printGameState(array):
         for j in range(len(array[i])):     
                 if (j + 1) % 3 != 0:
                     if array[i][j] == 1:
-                        cprint(str(array[i][j]), 'white', 'on_red', end = ' ')
+                        print(colors.bg.red + str(array[i][j]) + colors.reset, end = ' ')
                     if array[i][j] == 2:
-                        cprint(str(array[i][j]), 'white', 'on_blue', end = ' ')
+                        print(colors.bg.blue + str(array[i][j]) + colors.reset, end = ' ')
                     if array[i][j] == 0:
                         if [i,j] in listValidMoves():
-                            cprint(str(array[i][j]), 'yellow', end = ' ')
+                            print(colors.fg.yellow + str(array[i][j]) + colors.reset, end = ' ')
                         else:
                             print(str(array[i][j]), end = ' ')
                 
                 #if it factorable by 3, print extra space
                 else:
                     if array[i][j] == 1:
-                        cprint(str(array[i][j]), 'white', 'on_red', end = '      ')
+                        print(colors.bg.red + str(array[i][j]) + colors.reset, end = '      ')
                     if array[i][j] == 2:
-                        cprint(str(array[i][j]), 'white', 'on_blue', end = '      ')
+                        print(colors.bg.blue + str(array[i][j]) + colors.reset, end = '      ')
                     if array[i][j] == 0:
                         if [i,j] in listValidMoves():
-                            cprint(str(array[i][j]), 'yellow', end = '      ')
+                            print(colors.fg.yellow + str(array[i][j]) + colors.reset, end = '      ')
                         else:
                             print(str(array[i][j]), end = '      ')
     print("")
-    #print("")                
-    print("--------------------------------")
+    #print("_________________________________")                
+    print("---------------------------------")
 
 def getUserInput(player):
     if player == 1:
-        cprint("Player {}".format(player), 'white', 'on_red', end = ' ')
+        print(colors.bg.red + "Player {}".format(player) + colors.reset, end = ' ')
     if player == 2:
-        cprint("Player {}".format(player), 'white', 'on_blue', end = ' ')
-    print("please enter in a valid coordinate, or enter h for help:")
+        print(colors.bg.blue + "Player {}".format(player) + colors.reset, end = ' ')
+    print("please enter in a valid coordinate, or enter r for rules, or v for valid moves...")
     # if len(moveHistory) > 0:
     #     print(listValidMoves())
     #print(makeWinArray(gameStateArray))
     # print(moveHistory)
     coordinate = input()
-    if coordinate == "h":
+    if coordinate == "v":
         numberList = ""
         validMoves = listValidMoves()
         for move in validMoves:
             numberList += str(move[1] + 1)
             numberList += str(move[0] + 1)
-            numberList += "  " 
+            numberList += "  "
+        print("Coordinates are inputed as xy. No commas, no spaces, no nothin!")
+        print("Valid moves:")
+        print("")
+        print(numberList)
+        print("")
+        getUserInput(player) 
+
+    if coordinate == "r":
+       
         print("1. The goal of the game is to win Tic Tak Toe on the large game board")
         print("2. To win a tile on the large board, you must win Tic Tak Toe on its respective smaller board")
         print("3. The previous move will determine which board will be in play for the next move")
-        print("      Eg If you play the upper right hand corner on a small board")
-        print("      the next big board play will be the upper right hand board")
+        print("   For Example, if you play the upper right hand corner on a small board the next")
+        print("   big board play will be the upper right hand board")
         print("4. If sent to a board which has already been won, all available tiles will be playable")
         print("")
-        print("Coordinates inputs are xy. No commas, no spaces, no nothin! Valid moves are:")
-        print(numberList)
         getUserInput(player)
     else:
         coordinateArray = []
@@ -99,17 +140,18 @@ def getUserInput(player):
                 printGameState(gameStateArray)
                 if checkForWin(gameStateArray) != 0:
                     if player == 1:
-                        cprint("!!!!!! PLAYER 1 WINS !!!!!!", 'white', 'on_red') 
+                        print("!!!!!! PLAYER 1 WINS !!!!!!") 
                         input()
                     if player == 2:
-                        cprint("!!!!!! PLAYER 2 WINS !!!!!!", 'white', 'on_blue') 
+                        print("!!!!!! PLAYER 2 WINS !!!!!!") 
                         input()  
-                else:  
-                    getUserInput(player)
-                if player == 1:
-                    player = 2
                 else:
-                    player = 1
+                    if player == 1:
+                        player = 2
+                    else:
+                        player = 1  
+                    getUserInput(player)
+                
             else: 
                 print("Invalid Input")
                 getUserInput(player)
@@ -158,7 +200,7 @@ def listValidMoves():
                     # print(wins[moveBB0][moveBB1])
                     if wins[moveBB0][moveBB1] == 0 and move not in moveHistory:             # so 01 bigBoard is 00. if win[0][0] is 0, make a play
                         validMoves.append(move)     
-        else:                                                                                # if we weren't sent back to an invalid board, select all tiles from that board                              
+        else:                                                                               # if we weren't sent back to an invalid board, select all tiles from that board                              
             for i in range(3):
                 for j in range(3):
                     move = []

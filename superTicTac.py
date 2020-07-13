@@ -125,40 +125,43 @@ def getUserInput(player):
         print("1. The goal of the game is to win Tic Tac Toe on the large game board")
         print("2. To win a tile on the large board, you must win Tic Tac Toe on its respective smaller board")
         print("3. The previous move will determine which board will be in play for the next move")
-        print("   For Example, if you play the upper right hand corner on a small board the next")
+        print("   For example, if you play the upper right hand corner on a small board the next")
         print("   big board play will be the upper right hand board")
         print("4. If sent to a board which has already been won, all available tiles will be playable")
         print("")
         getUserInput(player)
     else:
         coordinateArray = []
-        try: 
-            coordinateArray.append(int(coordinate[1]) - 1)
-            coordinateArray.append(int(coordinate[0]) - 1)
-            if checkInputValidity(coordinateArray):
-                changeGameState(gameStateArray, coordinateArray, player)
-                printGameState(gameStateArray)
-                if checkForWin(gameStateArray) != 0:
-                    if player == 1:
-                        print("!!!!!! PLAYER 1 WINS !!!!!!") 
-                        input()
-                    if player == 2:
-                        print("!!!!!! PLAYER 2 WINS !!!!!!") 
-                        input()  
-                else:
-                    if player == 1:
-                        player = 2
+        if listValidMoves() != 0:
+            try: 
+                coordinateArray.append(int(coordinate[1]) - 1)
+                coordinateArray.append(int(coordinate[0]) - 1)
+                if checkInputValidity(coordinateArray):
+                    changeGameState(gameStateArray, coordinateArray, player)
+                    printGameState(gameStateArray)
+                    if checkForWin(gameStateArray) != 0:
+                        if player == 1:
+                            print(colors.bg.red + "!!!!!! PLAYER 1 WINS !!!!!!" + colors.reset) 
+                            input()
+                        if player == 2:
+                            print(colors.bg.blue + "!!!!!! PLAYER 2 WINS !!!!!!" + colors.reset) 
+                            input()  
                     else:
-                        player = 1  
+                        if player == 1:
+                            player = 2
+                        else:
+                            player = 1  
+                        getUserInput(player)
+                    
+                else: 
+                    print("Invalid Input")
                     getUserInput(player)
-                
-            else: 
+
+            except:
                 print("Invalid Input")
                 getUserInput(player)
-
-        except:
-            print("Invalid Input")
-            getUserInput(player)
+        else: 
+            print("DRAW: NO VALID MOVES") 
 
 def projectCoordinateToNextBoardZone(move):
     output = []
@@ -183,23 +186,29 @@ def projectCoordinateToCurrentBoardZone(move):
             output.append(2)
     return output
 
+def validateAllPossible():
+    validMoves = []
+    wins = makeWinArray(gameStateArray)
+    for i in range(9):
+        for j in range(9):                                                         
+            move = [i,j]                                                            # make all tiles playable
+            moveBB = projectCoordinateToCurrentBoardZone(move)                      # except tiles that fall in the win zone, which is any big board win, mapped to all its smaller coordinates
+            moveBB0 = moveBB[0]                                                     
+            moveBB1 = moveBB[1]
+            # print(wins[moveBB0][moveBB1])
+            if wins[moveBB0][moveBB1] == 0 and move not in moveHistory:             # so 01 bigBoard is 00. if win[0][0] is 0, make a play
+                validMoves.append(move)
+    return validMoves     
+
 def listValidMoves():
     validMoves = []
     if len(moveHistory) > 0:
         bigBoard = projectCoordinateToNextBoardZone(moveHistory[-1])
         bb0 = bigBoard[0]
         bb1 = bigBoard[1]
-        wins = makeWinArray(gameStateArray)
+        wins = makeWinArray(gameStateArray)     
         if wins[bb0][bb1] == 1 or wins[bb0][bb1] == 2:                                      # if the return board has already been won by either 1 or 2
-            for i in range(9):
-                for j in range(9):                                                         
-                    move = [i,j]                                                            # make all tiles playable
-                    moveBB = projectCoordinateToCurrentBoardZone(move)                      # except tiles that fall in the win zone, which is any big board win, mapped to all its smaller coordinates
-                    moveBB0 = moveBB[0]                                                     
-                    moveBB1 = moveBB[1]
-                    # print(wins[moveBB0][moveBB1])
-                    if wins[moveBB0][moveBB1] == 0 and move not in moveHistory:             # so 01 bigBoard is 00. if win[0][0] is 0, make a play
-                        validMoves.append(move)     
+            validMoves = validateAllPossible()    
         else:                                                                               # if we weren't sent back to an invalid board, select all tiles from that board                              
             for i in range(3):
                 for j in range(3):
@@ -213,6 +222,14 @@ def listValidMoves():
             for j in range(9):
                 move = [i,j]
                 validMoves.append(move)
+
+    # if sent to a board with no wins BUT no valid moves, which we know because we tried everything else
+    # if there are still no valid moves, game is a draw
+    # there is probably a more advanced way to determine a draw before the end of all possible moves...
+    # monte carlo??? :)  
+    if validMoves == 0: 
+        validMoves = validateAllPossible()
+
     return validMoves
 
 def checkInputValidity(move):

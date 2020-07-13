@@ -122,8 +122,8 @@ def getUserInput(player):
 
     if coordinate == "r":
        
-        print("1. The goal of the game is to win Tic Tak Toe on the large game board")
-        print("2. To win a tile on the large board, you must win Tic Tak Toe on its respective smaller board")
+        print("1. The goal of the game is to win Tic Tac Toe on the large game board")
+        print("2. To win a tile on the large board, you must win Tic Tac Toe on its respective smaller board")
         print("3. The previous move will determine which board will be in play for the next move")
         print("   For Example, if you play the upper right hand corner on a small board the next")
         print("   big board play will be the upper right hand board")

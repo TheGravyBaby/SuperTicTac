@@ -91,8 +91,7 @@ def printGameState(array):
                             print(colors.fg.yellow + str(array[i][j]) + colors.reset, end = '      ')
                         else:
                             print(str(array[i][j]), end = '      ')
-    print("")
-    #print("_________________________________")                
+    print("")              
     print("---------------------------------")
 
 def getUserInput(player):
@@ -120,9 +119,7 @@ def getUserInput(player):
             print(numberList)
             print("")
             getUserInput(player) 
-
-        if coordinate == "r":
-        
+        if coordinate == "r":    
             print("1. The goal of the game is to win Tic Tac Toe on the large game board")
             print("2. To win a tile on the large board, you must win Tic Tac Toe on its respective smaller board")
             print("3. The previous move will determine which board will be in play for the next move")
@@ -151,12 +148,10 @@ def getUserInput(player):
                             player = 2
                         else:
                             player = 1  
-                        getUserInput(player)
-                    
+                        getUserInput(player)      
                 else: 
                     print("Invalid Input")
                     getUserInput(player)
-
             except:
                 print("Invalid Input")
                 getUserInput(player)

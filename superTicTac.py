@@ -36,11 +36,8 @@ class colors:
         purple='\033[45m'
         cyan='\033[46m'
         lightgrey='\033[47m'
-
-
+        
 gameStateArray = [ [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9]   # do this as multiplying by 9 will copy index through the columns, weird
-oneWin = False
-twoWin = False
 moveHistory = []
 
 #functions
@@ -94,7 +91,8 @@ def printGameState(array):
     print("")              
     print("---------------------------------")
 
-def getUserInput(player):
+# currently a graphical interpretation of the game
+def getUserInputGraphical(player):
     if listValidMoves() !=0:
         if player == 1:
             print(colors.bg.red + "Player {}".format(player) + colors.reset, end = ' ')
@@ -118,7 +116,7 @@ def getUserInput(player):
             print("")
             print(numberList)
             print("")
-            getUserInput(player) 
+            getUserInputGraphical(player) 
         if coordinate == "r":    
             print("1. The goal of the game is to win Tic Tac Toe on the large game board")
             print("2. To win a tile on the large board, you must win Tic Tac Toe on its respective smaller board")
@@ -127,7 +125,7 @@ def getUserInput(player):
             print("   big board play will be the upper right hand board")
             print("4. If sent to a board which has already been won, all available tiles will be playable")
             print("")
-            getUserInput(player)
+            getUserInputGraphical(player)
         else:
             coordinateArray = []
             try: 
@@ -148,13 +146,13 @@ def getUserInput(player):
                             player = 2
                         else:
                             player = 1  
-                        getUserInput(player)      
+                        getUserInputGraphical(player)      
                 else: 
                     print("Invalid Input")
-                    getUserInput(player)
+                    getUserInputGraphical(player)
             except:
                 print("Invalid Input")
-                getUserInput(player)
+                getUserInputGraphical(player)
     else: 
         print("Game is a draw")
         input()
@@ -288,4 +286,4 @@ def checkForWin(array):
 
 #initialization
 printGameState(gameStateArray)
-getUserInput(1)
+getUserInputGraphical(1)

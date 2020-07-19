@@ -41,3 +41,54 @@ class colors:
         purple='\033[45m'
         cyan='\033[46m'
         lightgrey='\033[47m'
+
+def printGameState(node):
+    board = node.boardState
+    validMoves = node.validMoves
+    
+    clear()
+    print("--------------------------------")
+    print("         SUPER TIC TAC TOE      ")
+    print("--------------------------------")
+    print("    1 2 3      4 5 6      7 8 9 ")
+    print("--------------------------------")
+    
+    for i in range(len(board)):                             # for every row of the array
+        if i== 0: 
+            print("{} | ".format(i + 1), end = "")
+        if i != 0 and i % 3 != 0:                           # if it factorable by 3, print an extra line as spacer
+            print("")
+            print("{} | ".format(i + 1), end = "")
+        if i != 0 and i % 3 == 0 :
+            print("")
+            print("  | ")
+            print("{} | ".format(i + 1), end = "")
+        
+        for j in range(len(board[i])):     
+                if (j + 1) % 3 != 0:
+                    if board[i][j] == 1:
+                        print(colors.bg.red + str(board[i][j]) + colors.reset, end = ' ')
+                    if board[i][j] == 2:
+                        print(colors.bg.blue + str(board[i][j]) + colors.reset, end = ' ')
+                    if board[i][j] == 0:
+                        if [i,j] in validMoves():
+                            print(colors.fg.yellow + str(board[i][j]) + colors.reset, end = ' ')
+                        else:
+                            print(str(board[i][j]), end = ' ')
+                
+                #if it factorable by 3, print extra space
+                else:
+                    if board[i][j] == 1:
+                        print(colors.bg.red + str(board[i][j]) + colors.reset, end = '      ')
+                    if board[i][j] == 2:
+                        print(colors.bg.blue + str(board[i][j]) + colors.reset, end = '      ')
+                    if board[i][j] == 0:
+                        if [i,j] in validMoves():
+                            print(colors.fg.yellow + str(board[i][j]) + colors.reset, end = '      ')
+                        else:
+                            print(str(board[i][j]), end = '      ')
+    print("")              
+    print("---------------------------------")
+
+# def getUserInput(node):
+

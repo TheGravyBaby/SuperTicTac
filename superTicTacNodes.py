@@ -1,61 +1,60 @@
-
 # state of game with all the needed information to progress
 class GameNode: 
     # nodes can be constructed using a gameState, a move history
     def __init__(self, board, history):
         self.boardState = board
         self.moveHistory = history
-        self.validMoves = listValidMoves(board, history)
-        self.winState = checkForWin(board)
+        self.validMoves = listValidMoves(self)
+        self.winState = checkForWin(self)
 
-def makeMove(board, history, move):
-    if move in listValidMoves(board, history):
-        history.Add(move)
-    if len(history) % 2 == 0 and len(history) != 0:
-        board[move[0]][move[1]] = 1
-    else:  
-        board[move[0]][move[1]] = 2
-
-    return {board, history}
+# given a node and a move, we output the conditions of a node
+# we can either set the current node equal to this new node (new turn)
+# or we can use this to create any additional nodes needed for the Monte
+def makeMove(node, move):
+    if move in node.validMoves:
+        node.moveHistory.Add(move)
+        if len(node.moveHistory) % 2 == 0 and len(node.moveHistory) != 0:
+            node.boardState[move[0]][move[1]] = 1
+        else:  
+            node.boardState[move[0]][move[1]] = 2
+    return node
       
 # will list all valid moves given a board state and a history
 # moves are listed as [y, x] 
-def listValidMoves(board, history):
+def listValidMoves(node):
     validMoves = []
-    if len(history) > 0:
-        bigBoard = projectCoordinateToNextBoardZone(history[-1])
+    
+    if len(node.moveHistory) > 0:
+        bigBoard = projectCoordinateToNextBoardZone(node.moveHistory[-1])
         bb0 = bigBoard[0]
         bb1 = bigBoard[1]
-        wins = makeWinArray(board)     
+        wins = makeWinArray(node.boardState)     
         if wins[bb0][bb1] == 1 or wins[bb0][bb1] == 2:                                      # if the return board has already been won by either 1 or 2
-            validMoves = validateAllPossible(board, history)    
+            validMoves = validateAllPossible(node)    
         else:                                                                               # if we weren't sent back to an invalid board, select all tiles from that board                              
             for i in range(3):
                 for j in range(3):
                     move = []
                     move.append(3 * bigBoard[0] + i)
                     move.append(3 * bigBoard[1] + j)
-                    if move not in history:
+                    if move not in node.moveHistory:
                         validMoves.append(move)  
     else:
-        for i in range(9):
-            for j in range(9):
-                move = [i,j]
-                validMoves.append(move)
+        validMoves = validateAllPossible(node)
     return validMoves
 
 # usually called when sent to an invalid square or at the start of a game
 # validates any coordinate that hasn't been played on a valid board zone
-def validateAllPossible(board, history):
+def validateAllPossible(node):
     validMoves = []
-    wins = makeWinArray(board)
+    wins = makeWinArray(node.boardState)
     for i in range(9):
         for j in range(9):                                                         
             move = [i,j]                                                            # make all tiles playable
             moveBB = projectCoordinateToCurrentBoardZone(move)                      # except tiles that fall in the win zone, which is any big board win, mapped to all its smaller coordinates
             moveBB0 = moveBB[0]                                                     
             moveBB1 = moveBB[1]
-            if wins[moveBB0][moveBB1] == 0 and move not in history:                 # so 01 bigBoard is 00. if win[0][0] is 0, make a play
+            if wins[moveBB0][moveBB1] == 0 and move not in node.moveHistory:                 # so 01 bigBoard is 00. if win[0][0] is 0, make a play
                 validMoves.append(move)
     return validMoves     
 

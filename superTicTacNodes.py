@@ -8,38 +8,22 @@ class GameNode:
     def __init__(self, board, history):
         self.boardState = board
         self.moveHistory = history
-        self.winState = checkForWin(self)
-        self.validMoves = listValidMoves(self)
-
-
-# given a node and a move, we output the conditions of a node
-# we can either set the current node equal to this new node (new turn)
-# or we can use this to create any additional nodes needed for the Monte
-def makeMove(node, move):
-    if move in node.validMoves:
-        node.moveHistory.Add(move)
-        if len(node.moveHistory) % 2 == 0:
-            node.boardState[move[0]][move[1]] = 1
-        else:
-            node.boardState[move[0]][move[1]] = 2
-    return node
-
+        self.winState = checkForWin(self.boardState)
+        self.validMoves = listValidMoves(self.boardState, self.moveHistory)
 
 # will list all valid moves given a board state and a history
 # moves are listed as [y, x]
-def listValidMoves(node):
+def listValidMoves(board, history):
     validMoves = []
     # if the game is won then return no valid moves
-    if node.winState != 0:
-        return validMoves
-    if len(node.moveHistory) > 0:
-        bigBoard = projectCoordinateToNextBoardZone(node.moveHistory[-1])
+    if len(history) > 0:
+        bigBoard = projectCoordinateToNextBoardZone(history[-1])
         bb0 = bigBoard[0]
         bb1 = bigBoard[1]
-        wins = makeWinArray(node.boardState)
+        wins = makeWinArray(board)
         # if the return board has already been won by either 1 or 2
         if wins[bb0][bb1] == 1 or wins[bb0][bb1] == 2:
-            validMoves = validateAllPossible(node)
+            validMoves = validateAllPossible(board, history)
         # if we weren't sent back to an invalid board, select all tiles from that board
         else:
             for i in range(3):
@@ -47,18 +31,18 @@ def listValidMoves(node):
                     move = []
                     move.append(3 * bigBoard[0] + i)
                     move.append(3 * bigBoard[1] + j)
-                    if move not in node.moveHistory:
+                    if move not in history:
                         validMoves.append(move)
     else:
-        validMoves = validateAllPossible(node)
+        validMoves = validateAllPossible(board, history)
     return validMoves
 
 
 # usually called when sent to an invalid square or at the start of a game
 # validates any coordinate that hasn't been played on a valid board zone
-def validateAllPossible(node):
+def validateAllPossible(board, history):
     validMoves = []
-    wins = makeWinArray(node.boardState)
+    wins = makeWinArray(board)
     for i in range(9):
         for j in range(9):
             # make all tiles playable
@@ -68,7 +52,7 @@ def validateAllPossible(node):
             moveBB0 = moveBB[0]
             moveBB1 = moveBB[1]
             # so 01 bigBoard is 00. if win[0][0] is 0, make a play
-            if wins[moveBB0][moveBB1] == 0 and move not in node.moveHistory:
+            if wins[moveBB0][moveBB1] == 0 and move not in history:
                 validMoves.append(move)
     return validMoves
 
@@ -108,9 +92,8 @@ def projectCoordinateToCurrentBoardZone(move):
 # horizontile relationship [a,b], [a+1,b], [a+2,b]
 # vertical relationship [a, b], [a, b+1], [a, b+2]
 # diagonal relationship [a,b], [a+1,b+1], [a+1,b+1] also works with minus
-def makeWinArray(node):
+def makeWinArray(board):
 
-    board = node.boardState
     winArray = [[0]*3, [0]*3, [0]*3]
 
     # imagine 1,1
@@ -134,8 +117,8 @@ def makeWinArray(node):
 
 
 # using the win array board, we check to see if there are any big board wins
-def checkForWin(node):
-    win = makeWinArray(node)
+def checkForWin(board):
+    win = makeWinArray(board)
     for i in range(3):
         if win[i][0] == win[i][1] == win[i][2] != 0:         # check the three horizontiles
             return win[i][0]                                 # simply returns the player number for the win
@@ -147,6 +130,18 @@ def checkForWin(node):
         return win[0][0]
     else:
         return 0
+
+# given a node and a move, we output the conditions of a node
+# we can either set the current node equal to this new node (new turn)
+# or we can use this to create any additional nodes needed for the Monte
+def makeMove(node, move):
+    node.moveHistory.append(move)
+    if len(node.moveHistory) % 2 == 0 or (len(node.moveHistory) == 0):
+        node.boardState[move[0]][move[1]] = 2
+    else:
+        node.boardState[move[0]][move[1]] = 1
+    node.winState = checkForWin(node.boardState)
+    node.validMoves = listValidMoves(node.boardState, node.moveHistory)     # update move list                                                          
 
 
 ############################################################################
@@ -224,7 +219,7 @@ def printGameState(node):
                 if board[i][j] == 2:
                     print(colors.bg.blue + str(board[i][j]) + colors.reset, end=' ')
                 if board[i][j] == 0:
-                    if [i,j] in validMoves():
+                    if [i,j] in node.validMoves:
                         print(colors.fg.yellow + str(board[i][j]) + colors.reset, end=' ')
                     else:
                         print(str(board[i][j]), end=' ')
@@ -236,7 +231,7 @@ def printGameState(node):
                 if board[i][j] == 2:
                     print(colors.bg.blue + str(board[i][j]) + colors.reset, end='      ')
                 if board[i][j] == 0:
-                    if [i,j] in validMoves():
+                    if [i,j] in node.validMoves:
                         print(colors.fg.yellow + str(board[i][j]) + colors.reset, end='      ')
                     else:
                         print(str(board[i][j]), end='      ')
@@ -244,17 +239,17 @@ def printGameState(node):
     print("---------------------------------")
 
 def getUserInput(node):
-    if node.validMoves > 0:
+    if len(node.validMoves) > 0:
         if len(node.moveHistory) % 2 == 0:
-            print(colors.bg.red + "Player {}".format(player) + colors.reset, end = ' ')
+            print(colors.bg.red + "Player 1" + colors.reset, end = ' ')
         else:
-            print(colors.bg.blue + "Player {}".format(player) + colors.reset, end = ' ')
+            print(colors.bg.blue + "Player 2" + colors.reset, end = ' ')
         print("please enter in a valid coordinate, or enter r for rules, or v for valid moves...")
 
         coordinate = input()
         if coordinate == "v":
             numberList = ""
-            validMoves = listValidMoves()
+            validMoves = node.validMoves
             for move in validMoves:
                 numberList += str(move[1] + 1)
                 numberList += str(move[0] + 1)
@@ -264,7 +259,7 @@ def getUserInput(node):
             print("")
             print(numberList)
             print("")
-            getUserInputGraphical(player)
+            getUserInput(node)
         if coordinate == "r":
             print("1. The goal of the game is to win Tic Tac Toe on the large game board")
             print("2. To win a tile on the large board, you must win Tic Tac Toe on its respective smaller board")
@@ -273,18 +268,35 @@ def getUserInput(node):
             print("   big board play will be the upper right hand board")
             print("4. If sent to a board which has already been won, all available tiles will be playable")
             print("")
-            getUserInputGraphical(player)
+            getUserInput(node)
+
         else:
             coordinateArray = []
             try:
                 coordinateArray.append(int(coordinate[1]) - 1)
                 coordinateArray.append(int(coordinate[0]) - 1)
+            except:
+                print("Invalid Input")
+                getUserInput(node)
+
+            if coordinateArray in node.validMoves:
                 makeMove(node, coordinateArray)
+            else:
+                print("Invalid Input")
+                getUserInput(node) 
 
 
-# do this as multiplying by 9 will copy index through the columns, weird
-initial_board = [ [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9]
-initial_history = []
-initial_game = GameNode(initial_board, initial_history)
-# getUserInput(initial_game)
-printGameState(initial)
+def startNewGame():
+    initial_board = [ [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9]
+    initial_history = []
+    game = GameNode(initial_board, initial_history)
+    playGame(game)
+
+def playGame(node):
+    printGameState(node)
+    getUserInput(node)
+    if node.winState == 0:
+        playGame(node)
+
+
+startNewGame()

@@ -143,7 +143,7 @@ def makeMove(node, move):
     node.winState = checkForWin(node.boardState)
     node.validMoves = listValidMoves(node.boardState, node.moveHistory)     # update move list                                                          
 
-
+# Graphical Funtions!
 ############################################################################
 def clear():
     os.system( 'cls' )
@@ -219,7 +219,7 @@ def printGameState(node):
                 if board[i][j] == 2:
                     print(colors.bg.blue + str(board[i][j]) + colors.reset, end=' ')
                 if board[i][j] == 0:
-                    if [i,j] in node.validMoves:
+                    if [i,j] in validMoves:
                         print(colors.fg.yellow + str(board[i][j]) + colors.reset, end=' ')
                     else:
                         print(str(board[i][j]), end=' ')
@@ -231,12 +231,13 @@ def printGameState(node):
                 if board[i][j] == 2:
                     print(colors.bg.blue + str(board[i][j]) + colors.reset, end='      ')
                 if board[i][j] == 0:
-                    if [i,j] in node.validMoves:
+                    if [i,j] in validMoves:
                         print(colors.fg.yellow + str(board[i][j]) + colors.reset, end='      ')
                     else:
                         print(str(board[i][j]), end='      ')
     print("")
     print("---------------------------------")
+
 
 def getUserInput(node):
     if len(node.validMoves) > 0:
@@ -292,11 +293,17 @@ def startNewGame():
     game = GameNode(initial_board, initial_history)
     playGame(game)
 
+
 def playGame(node):
     printGameState(node)
     getUserInput(node)
-    if node.winState == 0:
+    if node.winState == 0 and len(node.validMoves) != 0:
         playGame(node)
+    else: 
+        if node.winState == 0:
+            print("DRAW! No winner, no legal moves!")
+        else:
+            print("PLAYER {} WINS!".format(node.winState))
 
-
+# initialize the game!
 startNewGame()

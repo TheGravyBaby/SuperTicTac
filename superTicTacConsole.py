@@ -114,13 +114,15 @@ def getUserInput(node):
                 numberList += str(move[1] + 1)
                 numberList += str(move[0] + 1)
                 numberList += "  "
+            printGameState(node)
             print("Coordinates are inputed as xy. No commas, no spaces, no nothin!")
             print("Valid moves:")
             print("")
             print(numberList)
             print("")
             getUserInput(node)
-        if coordinate == "r":
+        elif coordinate == "r":
+            printGameState(node)
             print("1. The goal of the game is to win Tic Tac Toe on the large game board")
             print("2. To win a tile on the large board, you must win Tic Tac Toe on its respective smaller board")
             print("3. The previous move will determine which board will be in play for the next move")

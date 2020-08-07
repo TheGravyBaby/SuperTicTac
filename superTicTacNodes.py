@@ -139,4 +139,16 @@ def makeMove(node, move):
     else:
         node.boardState[move[0]][move[1]] = 1
     node.winState = checkForWin(node.boardState)
-    node.validMoves = listValidMoves(node.boardState, node.moveHistory)     # update move list                                                          
+    node.validMoves = listValidMoves(node.boardState, node.moveHistory)     # update move list
+    
+# idk if this is necessary, but intuitively seems to help with the creation of new nodes
+def makeMoveNewBoard(node, move):    
+    node2 = node
+    node2.moveHistory.append(move)
+    if len(node2.moveHistory) % 2 == 0 or (len(node2.moveHistory) == 0):
+        node2.boardState[move[0]][move[1]] = 2
+    else:
+        node2.boardState[move[0]][move[1]] = 1
+    node2.winState = checkForWin(node.boardState)
+    node2.validMoves = listValidMoves(node.boardState, node.moveHistory)     # update move list
+    return node2                                                              

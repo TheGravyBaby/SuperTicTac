@@ -1,4 +1,5 @@
 import sys
+import copy
 
 # state of game with all the needed information to progress
 class GameNode:
@@ -99,10 +100,10 @@ def makeWinArray(board):
     for i in range(3):
         for j in range(3):
             for k in range(3):
-                #vertical, check three columns
+                # vertical, check three columns
                 if board[3 * i][3 * j + k] == board[3 * i + 1][3 * j + k] == board[3 * i + 2][3 * j + k] != 0:
                     winArray[i][j] = board[3 * i][3 * j + k]
-                #horizontile check three rows
+                # horizontile check three rows
                 if board[3 * i + k][3 * j] == board[3 * i + k][3 * j + 1] == board[3 * i + k][3 * j + 2] != 0:
                     winArray[i][j] = board[3 * i + k][3 * j]
             # forward diagonal, only two diag tests vs three straight ones
@@ -121,7 +122,8 @@ def checkForWin(board):
         if win[i][0] == win[i][1] == win[i][2] != 0:         # check the three horizontiles
             return win[i][0]                                 # simply returns the player number for the win
         if win[0][i] == win[1][i] == win[2][i] != 0:         # check the three verticals
-            return win[i][0]
+            x = win[0][i]
+            return x
     if win[0][0] == win[1][1] == win[2][2] != 0:            # check for each diagonal
         return win[0][0]
     if win[2][0] == win[1][1] == win[0][2] != 0:
@@ -143,12 +145,12 @@ def makeMove(node, move):
     
 # idk if this is necessary, but intuitively seems to help with the creation of new nodes
 def makeMoveNewBoard(node, move):    
-    node2 = node
+    node2 = copy.deepcopy(node)
     node2.moveHistory.append(move)
     if len(node2.moveHistory) % 2 == 0 or (len(node2.moveHistory) == 0):
         node2.boardState[move[0]][move[1]] = 2
     else:
         node2.boardState[move[0]][move[1]] = 1
-    node2.winState = checkForWin(node.boardState)
-    node2.validMoves = listValidMoves(node.boardState, node.moveHistory)     # update move list
+    node2.winState = checkForWin(node2.boardState)
+    node2.validMoves = listValidMoves(node2.boardState, node2.moveHistory)     # update move list
     return node2                                                              

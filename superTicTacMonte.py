@@ -1,6 +1,7 @@
 import os
 import sys
 from superTicTacNodes import *
+from superTicTacConsole import *
 import math as m 
 import random
 
@@ -22,45 +23,64 @@ class monteNode():
         # after a won playout compute UBC
  
 # 1. Create the root monte node... (could be a root or any node really)
-def monte_initiate(GameNode):
-    return monteNode(GameNode, None, 0)
+def monte_initiate(GameNode):   
+    root_node =  monteNode(GameNode, None, 0)
+    monte_expand(root_node)
+
     
 # 2. EXPAND!  For valid moves in that game node, make child nodes           
-def monte_expand(MonteNode):
+def monte_expand(node):
     
      # only need to expand if we haven't already
-     if len(MonteNode.Children) == 0 : 
+    if len(node.Children) == 0 : 
         # make new child nodes
-        for move in MonteNode.GameNode.validMoves : 
-            newGameState = makeMoveNewBoard(MonteNode.GameNode.boardState, move)
-            MonteNode.Children.Add(monteNode(newGameState, MonteNode, MonteNode.ParentPlayouts))
-    monte_select(MonteNode)
+        for move in node.GameNode.validMoves : 
+           # newGameState = makeMoveNewBoard(node.GameNode, move)
+            node.Children.append(monteNode(makeMoveNewBoard(node.GameNode, move), node, node.ParentPlayouts))       
+    monte_select(node)
 
 
 # 3. SELECT! Pick a node to keep traveling down
-def monte_select(MonteNode):
+def monte_select(node):
     
     # check for draws on this node
-    if MonteNode.GameNode.boardState.winState == 0 and len(MonteNode.GameNode.boardState.validMoves) == 0 :
+    if node.GameNode.winState == 0 and len(node.GameNode.validMoves) == 0 :
+        printGameState(node.GameNode)
         print("Found a draw")
+        input()
     
     # check for wins     
-    elif MonteNode.GameNode.boardState.winState != 0 :
+    elif node.GameNode.winState != 0 :
+        printGameState(node.GameNode)
         print("Found a win")
+        input()
 
-    # sort by UBC1 order, gotta figure out how to sort here,
+
+    else : 
+        # sort by UCB1 order, gotta figure out how to sort here,
+        # node.Children = sorted(node.Children, key=lambda  child: child.UCB1)
+        # print(node.Children) 
         
-    
-    # if no ubc1 advantage, pick a random number, get that child, and then run the expansion
-    else :
-        randomNum = random.randint(0, len(MonteNode.GameNode.validMoves))   
-        monte_expand(MonteNode.Children[randomNum])
-    
+        random.seed(a=None, version=2)
+        num = random.randint(0, len(node.Children)) - 1
 
+        printGameState(node.Children[num].GameNode)
+        print("Expanding...")
 
+        # input()
+        monte_expand(node.Children[num])
+
+    
 
 # 4. Repeat 2, for all the valid moves make child nodes 
 
-def backpropogate_node(MonteNode):
-    print("Backpropogate")
+# def backpropogate_node(node):
+#     print("Backpropogate")
     
+def runAMonte():
+    initial_board = [ [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9]
+    initial_history = []
+    game = GameNode(initial_board, initial_history)
+    monte_initiate(game)
+
+runAMonte()

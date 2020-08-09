@@ -161,17 +161,11 @@ def getUserInput(node):
                 getUserInput(node) 
 
 
-def startNewGame():
-    initial_board = [ [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9]
-    initial_history = []
-    game = GameNode(initial_board, initial_history)
-    playGame(game)
-
-
 def playGame(node):
     printGameState(node)
-    getUserInput(node)
+
     if node.winState == 0 and len(node.validMoves) != 0:
+        getUserInput(node)
         playGame(node)
     else: 
         if node.winState == 0:
@@ -180,6 +174,3 @@ def playGame(node):
         else:
             printGameState(node)
             print("!!!! PLAYER {} WINS !!!!".format(node.winState))
-
-# initialize the game!
-startNewGame()

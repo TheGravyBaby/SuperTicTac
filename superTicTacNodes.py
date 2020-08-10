@@ -121,13 +121,12 @@ def checkForWin(board):
     for i in range(3):
         if win[i][0] == win[i][1] == win[i][2] != 0:         # check the three horizontiles
             return win[i][0]                                 # simply returns the player number for the win
-        if win[0][i] == win[1][i] == win[2][i] != 0:         # check the three verticals
-            x = win[0][i]
-            return x
+        if win[0][i] == win[1][i] == win[2][i] != 0:         # check the three verticals 
+            return win[0][i]
     if win[0][0] == win[1][1] == win[2][2] != 0:            # check for each diagonal
-        return win[0][0]
+        return win[1][1]
     if win[2][0] == win[1][1] == win[0][2] != 0:
-        return win[0][0]
+        return win[1][1]
     else:
         return 0
 

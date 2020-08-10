@@ -9,7 +9,7 @@ import random
 player = 2
 global_playouts = 0
 # the bigger this number, the more games the tree will search through
-allowed_playouts = 40
+allowed_playouts = 300
 
 class monteNode(): 
     def __init__(self, GameNode, Parent):
@@ -83,7 +83,7 @@ def backpropogate_node(node, winloss):
         backpropogate_node(node.Parent, winloss)
     else :
         # clear()
-        print("I've simulated {} games.".format(global_playouts), end="\r", flush=True)
+        print("I've simulated {} games out of {}.".format(global_playouts, allowed_playouts), end="\r", flush=True)
 
 
 

@@ -5,11 +5,9 @@ from superTicTacConsole import *
 import math as m 
 import random
 
-# these should eventually be moved
-player = 2
 global_playouts = 0
 # the bigger this number, the more games the tree will search through
-allowed_playouts = 400
+allowed_playouts = 320
 
 class monteNode(): 
     def __init__(self, GameNode, Parent):
@@ -45,23 +43,15 @@ def monte_select(node):
     
     # check for draws on this node
     if node.GameNode.winState == 0 and len(node.GameNode.validMoves) == 0 :
-        # printGameState(node.GameNode)
         global_playouts += 1
-        # print("Found a draw")
         node.ChildPlayouts += 1    
         backpropogate_node(node, 0)
     
     # check for wins     
     elif node.GameNode.winState != 0 :
-        # printGameState(node.GameNode)
         global_playouts += 1
-        # print("Found a win")
-        if node.GameNode.winState == player :
-            node.ChildPlayouts += 1
-            backpropogate_node(node, 1)
-        else :
-            node.ChildPlayouts += 1 
-            backpropogate_node(node, -1)
+        node.ChildPlayouts += 1
+        backpropogate_node(node, node.GameNode.winState)
 
     else : 
         # sort by UCB1 order, gotta figure out how to sort here,
@@ -79,14 +69,26 @@ def monte_select(node):
 
 
 def backpropogate_node(node, winloss):
-    node.WonPlayouts += winloss
+    
+    # nodes for player two need to propogate with wins losses for 2    
+    if len(node.GameNode.moveHistory) % 2 == 0 :
+        if winloss == 2 : 
+            node.WonPlayouts += 1
+    
+    elif len(node.GameNode.moveHistory) % 2 != 0 :
+        if winloss == 1 : 
+            node.WonPlayouts += 1
+
+    elif winloss == 0 : 
+        node.WonPlayouts += .5
  
-    # this would be the root node 
+    # non root node 
     if node.Parent != None :
         node.calculateUCB1()
         backpropogate_node(node.Parent, winloss)
+    
+    # root node
     else :
-        # clear()
         print("I've simulated {} games out of {}.".format(global_playouts, allowed_playouts), end="\r", flush=True)
 
 
@@ -100,12 +102,14 @@ def monte_runner(gameNode):
     while global_playouts <  allowed_playouts :
         monte_expand(tree_root)
     
-    tree_root.Children = sorted(tree_root.Children, key=lambda child: safe_div(child.WonPlayouts, child.ChildPlayouts))
+    # pick the node with the highest ubc1
+    tree_root.Children = sorted(tree_root.Children, key=lambda child: child.ChildPlayouts)
     best_move = tree_root.Children[-1].GameNode.moveHistory[-1]
 
-    # clear()
-    # print("I've completed {} games".format(global_playouts))
-    # print("My favorite move is {}".format(coordinates_to_display(best_move)))
+    # print("My favorite move is {} with {} percent wins".format(coordinates_to_display(best_move), tree_root.Children[-1].WonPlayouts / global_playouts * 100))
+    # print("Its UBC1 score is {}".format(tree_root.Children[-1].UCB1))
+    # print("The second best UCB1 score is {}".format(tree_root.Children[-2].UCB1))
+    # input()
     global_playouts = 0
 
     return best_move
@@ -114,6 +118,3 @@ def safe_div(x,y):
     if y == 0:
         return 0
     return x / y
-
-
-# monte_runner()

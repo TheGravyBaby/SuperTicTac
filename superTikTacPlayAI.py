@@ -1,5 +1,6 @@
 from superTicTacNodes import *
 from superTicTacConsole import *
+from superTicTacMonte import * 
 
 def startNewGame():
     
@@ -17,7 +18,10 @@ def playGame(node):
 
     if node.winState == 0 and len(node.validMoves) != 0:
         getUserInput(node)
-        playGame(node)
+        printGameState(node)
+        monte_runner(node)
+         
+
     else: 
         if node.winState == 0:
             printGameState(node)

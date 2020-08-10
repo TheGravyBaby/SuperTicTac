@@ -137,8 +137,8 @@ def getUserInput(node):
             
             if len(coordinate) == 2 :
                 try:
-                    coordinateArray.append(int(coordinate[1]) - 1)
-                    coordinateArray.append(int(coordinate[0]) - 1)
+                    coordinateArray = input_to_coordinates(coordinate)
+
                 except:
                     printGameState(node)
                     print("Invalid Input : " + coordinate)
@@ -160,17 +160,15 @@ def getUserInput(node):
                 print("Invalid Input : " + coordinate)
                 getUserInput(node) 
 
+# allows me to convert units to an easier to use xy notation (or perhaps another later)
+def input_to_coordinates(coordinate):
+    coordinateArray = []
+    coordinateArray.append(int(coordinate[1]) - 1)
+    coordinateArray.append(int(coordinate[0]) - 1)
+    return coordinateArray
 
-def playGame(node):
-    printGameState(node)
-
-    if node.winState == 0 and len(node.validMoves) != 0:
-        getUserInput(node)
-        playGame(node)
-    else: 
-        if node.winState == 0:
-            printGameState(node)
-            print("DRAW! No winner, no legal moves!")
-        else:
-            printGameState(node)
-            print("!!!! PLAYER {} WINS !!!!".format(node.winState))
+def coordinates_to_display(coordinate): 
+    coordinateArray = []
+    coordinateArray.append(int(coordinate[1]) + 1)
+    coordinateArray.append(int(coordinate[0]) + 1)
+    return coordinateArray

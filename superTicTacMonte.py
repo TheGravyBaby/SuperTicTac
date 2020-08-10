@@ -9,7 +9,7 @@ import random
 player = 2
 global_playouts = 0
 # the bigger this number, the more games the tree will search through
-allowed_playouts = 300
+allowed_playouts = 400
 
 class monteNode(): 
     def __init__(self, GameNode, Parent):
@@ -21,8 +21,9 @@ class monteNode():
         self.UCB1 = m.inf
         
     def calculateUCB1(self):
-        self.UCB1 = self.WonPlayouts / self.ChildPlayouts + m.pow(2, .5) * m.pow(m.log(global_playouts) / self.ChildPlayouts, .5)
+        self.UCB1 = self.WonPlayouts / self.ChildPlayouts + m.pow(2, .5) * m.pow(m.log(self.Parent.ChildPlayouts) / self.ChildPlayouts, .5)
         # after a won playout compute UBC
+        # self.Parent.ChildPlayouts
  
     
 # EXPAND!  For valid moves in that game node, make child nodes           
@@ -46,7 +47,8 @@ def monte_select(node):
     if node.GameNode.winState == 0 and len(node.GameNode.validMoves) == 0 :
         # printGameState(node.GameNode)
         global_playouts += 1
-        # print("Found a draw")    
+        # print("Found a draw")
+        node.ChildPlayouts += 1    
         backpropogate_node(node, 0)
     
     # check for wins     
@@ -55,9 +57,11 @@ def monte_select(node):
         global_playouts += 1
         # print("Found a win")
         if node.GameNode.winState == player :
+            node.ChildPlayouts += 1
             backpropogate_node(node, 1)
-        else : 
-             backpropogate_node(node, -1)
+        else :
+            node.ChildPlayouts += 1 
+            backpropogate_node(node, -1)
 
     else : 
         # sort by UCB1 order, gotta figure out how to sort here,
@@ -69,17 +73,17 @@ def monte_select(node):
 
         # printGameState(node.Children[num].GameNode)
         # print("Expanding...")
-
+        
+        node.ChildPlayouts += 1
         monte_expand(node.Children[num])
 
 
 def backpropogate_node(node, winloss):
     node.WonPlayouts += winloss
-    node.ChildPlayouts += 1
-    node.calculateUCB1()
-
+ 
     # this would be the root node 
     if node.Parent != None :
+        node.calculateUCB1()
         backpropogate_node(node.Parent, winloss)
     else :
         # clear()
@@ -92,6 +96,7 @@ def monte_runner(gameNode):
     tree_root = monteNode(gameNode, None)
 
     print("Simulating games...")
+    # unless a child has a won game, if so just go to that one! 
     while global_playouts <  allowed_playouts :
         monte_expand(tree_root)
     

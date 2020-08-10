@@ -5,11 +5,11 @@ from superTicTacConsole import *
 import math as m 
 import random
 
-# determines the number of playouts the algorithm will attempt before making a descision
-
+# these should eventually be moved
 player = 2
 global_playouts = 0
-allowed_playouts = 100
+# the bigger this number, the more games the tree will search through
+allowed_playouts = 40
 
 class monteNode(): 
     def __init__(self, GameNode, Parent):
@@ -28,13 +28,12 @@ class monteNode():
 # EXPAND!  For valid moves in that game node, make child nodes           
 def monte_expand(node):
     
-     # only need to expand if we haven't already
+    # only need to expand if we haven't already
     if len(node.Children) == 0 : 
         # make new child nodes
         for move in node.GameNode.validMoves : 
            # newGameState = makeMoveNewBoard(node.GameNode, move)
             node.Children.append(monteNode(makeMoveNewBoard(node.GameNode, move), node))       
-    # RECURSION
     monte_select(node)
 
 
@@ -71,13 +70,10 @@ def monte_select(node):
         # printGameState(node.Children[num].GameNode)
         # print("Expanding...")
 
-        # RECURSION
         monte_expand(node.Children[num])
 
 
 def backpropogate_node(node, winloss):
-    # global global_playouts
-
     node.WonPlayouts += winloss
     node.ChildPlayouts += 1
     node.calculateUCB1()
@@ -85,25 +81,29 @@ def backpropogate_node(node, winloss):
     # this would be the root node 
     if node.Parent != None :
         backpropogate_node(node.Parent, winloss)
-    # else :
+    else :
         # clear()
-        # print("I've simulated {} games.".format(global_playouts))
+        print("I've simulated {} games.".format(global_playouts), end="\r", flush=True)
 
 
 
 def monte_runner(gameNode):
+    global global_playouts
     tree_root = monteNode(gameNode, None)
 
-    while global_playouts <= allowed_playouts :
+    print("Simulating games...")
+    while global_playouts <  allowed_playouts :
         monte_expand(tree_root)
     
     tree_root.Children = sorted(tree_root.Children, key=lambda child: safe_div(child.WonPlayouts, child.ChildPlayouts))
     best_move = tree_root.Children[-1].GameNode.moveHistory[-1]
 
     # clear()
-    print("I've completed {} games".format(global_playouts))
-    print("My favorite move is {}".format(coordinates_to_display(best_move)))
-    input()  
+    # print("I've completed {} games".format(global_playouts))
+    # print("My favorite move is {}".format(coordinates_to_display(best_move)))
+    global_playouts = 0
+
+    return best_move
 
 def safe_div(x,y):
     if y == 0:

@@ -16,11 +16,12 @@ def startNewGame():
 def playGame(node):
     printGameState(node)
 
-    if node.winState == 0 and len(node.validMoves) != 0:
-        getUserInput(node)
-        printGameState(node)
-        monte_runner(node)
+    while node.winState == 0 and len(node.validMoves) != 0:
          
+        getUserInput(node)
+        printGameState(node)   
+        makeMove(node, monte_runner(node))
+        printGameState(node)
 
     else: 
         if node.winState == 0:

@@ -21,20 +21,29 @@ def startNewGame():
     initial_board = [ [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9]
     initial_history = []
     game = GameNode(initial_board, initial_history)
-    playGame(game)
+    playGame(game, 2)
 
-def playGame(node):
+
+def playGame(node, player):
     printGameState(node)
 
     while (node.winState == 0 and len(node.validMoves) != 0):
-         
-        getUserInput(node)
-        printGameState(node)
         
-        # check if win after previous move
-        if node.winState == 0 and len(node.validMoves) != 0:
+        if player == 2 : 
             makeMove(node, monte_runner(node))
             printGameState(node)
+        else : 
+            getUserInput(node)
+            printGameState(node)
+               
+        # check if win after previous move
+        if node.winState == 0 and len(node.validMoves) != 0:
+            if player == 2 : 
+                getUserInput(node)
+                printGameState(node)
+            else : 
+                makeMove(node, monte_runner(node))
+                printGameState(node)
 
     else: 
         if node.winState == 0:
@@ -43,5 +52,7 @@ def playGame(node):
         else:
             printGameState(node)
             print("!!!! PLAYER {} WINS !!!!".format(node.winState))
+    
+    input()
 
 startNewGame()

@@ -167,6 +167,7 @@ def input_to_coordinates(coordinate):
     coordinateArray.append(int(coordinate[0]) - 1)
     return coordinateArray
 
+
 def coordinates_to_display(coordinate): 
     coordinateArray = []
     coordinateArray.append(int(coordinate[1]) + 1)

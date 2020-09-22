@@ -83,7 +83,7 @@ def backpropogate_node(node, winloss):
 
 
 # using a global tree root will allow us to re use the tree. this will be a huge efficiency improvement
-def monte_runner(gameNode, iterations):
+def monte_runner(gameNode, allowed_playouts):
     global global_playouts
     global last_selected_node
     tree_root = None
@@ -110,7 +110,7 @@ def monte_runner(gameNode, iterations):
 
     print("Simulating games...")
     # unless a child has a won game, if so just go to that one! 
-    while global_playouts <  iterations :
+    while global_playouts <  allowed_playouts :
         monte_expand(tree_root)
     
     # pick the node visited most, if UBC theory is correct this is best node

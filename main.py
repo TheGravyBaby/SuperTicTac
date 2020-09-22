@@ -2,7 +2,8 @@ import os
 import sys
 from superTicTacNodes import *
 from superTicTacConsole import *
-from superTicTacMonte import*
+# from superTicTacMonteNo import*
+from superTicTacMonteNoRecur import *
 
 initial_board = [ [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9]
 initial_history = []
@@ -15,7 +16,7 @@ print(" ")
 
 def main():
     clear()
-    print("Welcome to Super Tic Tac Toe, what would you like to do?")
+    print("Welcome to Super Tic Tac Toe, what would yo2u like to do?")
     print("1. Play a Human.")
     print("2. Play Monte Carlo AI.")
     x = 0
@@ -27,7 +28,7 @@ def main():
     if (x == "1"):
         startNewGameHuman()
     if (x == "2"):
-        print("How many games would you like the AI to simulate before a move? (1-10000)")
+        print("How many seconds would you like the Monte to search for a move? (1-600)")
         allowed_playouts = input()
         try:
             allowed_playouts = int(allowed_playouts)

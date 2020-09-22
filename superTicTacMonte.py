@@ -28,9 +28,12 @@ def monte_expand(node):
     # this guy gets called a lot could be faster
     if len(node.Children) == 0 : 
         # make new child nodes
+        # this uses a lot of 
         for move in node.GameNode.validMoves : 
             node.Children.append(monteNode(makeMoveNewBoard(node.GameNode, move), node))       
+    # recursion here is bad, functions don't finish if tree is super big
     monte_select(node)
+    # return node
 
 
 # SELECT! Pick a node to keep traveling down
@@ -56,16 +59,15 @@ def monte_select(node):
         node.Visits += 1
         monte_expand(node.Children[-1])
 
-
 def backpropogate_node(node, winloss):
     
-    # nodes for player two need to propogate with wins losses for 2    
+    # if the node last move was player 2  
     if len(node.GameNode.moveHistory) % 2 == 0 :
         if winloss == 2 : 
             node.WonPlayouts += 1
         elif winloss == 1 : 
             node.WonPlayouts -= 1
-    
+    # if the node last move was player 1  
     elif len(node.GameNode.moveHistory) % 2 != 0 :
         if winloss == 1 : 
             node.WonPlayouts += 1
@@ -78,6 +80,7 @@ def backpropogate_node(node, winloss):
         backpropogate_node(node.Parent, winloss)
     
     # root node
+    # you can print this, however prints take a lot of time
     else :
         print("I've simulated {} games.".format(global_playouts), end="\r", flush=True)
 
@@ -94,6 +97,7 @@ def monte_runner(gameNode, allowed_playouts):
         tree_root = monteNode(gameNode, None)
     
     # if not, we should try to re use data from previous searches
+    # as of now this function will not allow monte to play itself 
     else : 
         for child_node in last_selected_node.Children : 
             if gameNode.moveHistory == child_node.GameNode.moveHistory : 
@@ -110,6 +114,7 @@ def monte_runner(gameNode, allowed_playouts):
 
     print("Simulating games...")
     # unless a child has a won game, if so just go to that one! 
+    # also we know the root of the tree, no need to select so we start with expansion
     while global_playouts <  allowed_playouts :
         monte_expand(tree_root)
     

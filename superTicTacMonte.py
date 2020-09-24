@@ -4,6 +4,7 @@ from superTicTacNodes import *
 from superTicTacConsole import *
 import math as m 
 import random
+import time
 
 global_playouts = 0
 last_selected_node = None
@@ -18,75 +19,100 @@ class monteNode():
         self.UCB1 = m.inf
         
     def calculateUCB1(self):
-        self.UCB1 = self.WonPlayouts / self.Visits + m.pow(2 * m.log(self.Parent.Visits) / self.Visits, .5)
+        self.UCB1 = self.WonPlayouts / self.Visits + m.pow(((2 * m.log(self.Parent.Visits)) / self.Visits), .5)
  
     
-# EXPAND!  For valid moves in that game node, make child nodes           
-def monte_expand(node):
-    
-    # only need to expand if we haven't already
-    # this guy gets called a lot could be faster
-    if len(node.Children) == 0 : 
-        # make new child nodes
-        # this uses a lot of 
-        for move in node.GameNode.validMoves : 
-            node.Children.append(monteNode(makeMoveNewBoard(node.GameNode, move), node))       
-    # recursion here is bad, functions don't finish if tree is super big
-    monte_select(node)
-    # return node
-
-
 # SELECT! Pick a node to keep traveling down
 def monte_select(node):
     
-    global global_playouts
+    # if we have no children to visit, we'll have to make some
+    if len(node.Children) == 0 :
+        return node
     
-    # check for draws on this node
-    if node.GameNode.winState == 0 and len(node.GameNode.validMoves) == 0 :
-        global_playouts += 1
-        node.Visits += 1    
-        backpropogate_node(node, 0)
-    
-    # check for wins     
-    elif node.GameNode.winState != 0 :
-        global_playouts += 1
+    # if we do have children to visit, sort and pick highest ucb1
+    else :
+        node.Children.sort(key=lambda  child: child.UCB1)              
         node.Visits += 1
-        backpropogate_node(node, node.GameNode.winState)
+        return node.Children[-1]
+    
+# EXPAND!  For valid moves in that game node, make child nodes           
+def monte_expand(node):
+    if len(node.Children) < len(node.GameNode.validMoves) : 
+        # make new child nodes
+        for move in node.GameNode.validMoves : 
+            node.Children.append(monteNode(makeMoveNewBoard(node.GameNode, move), node))       
+    return node
 
-    else : 
-        # sort by UCB1 order, select node with highest value
-        node.Children.sort(key=lambda  child: child.UCB1)        
+def monte_select_single(node):
+
+    # if we have maxed out our children, pick one
+    if len(node.Children) >= len(node.GameNode.validMoves) :
+        # every time we select a new node, make sure we give the parent a visit
+        node.Children.sort(key=lambda  child: child.UCB1) 
         node.Visits += 1
-        monte_expand(node.Children[-1])
+        return node.Children[-1]
+    
+    # if we haven't made all our kids, yet we have visited 
+    # all out existing kids, pass on for expansion
+    elif node.Visits >= len(node.Children) :
+        return node
+    
+    # we have a kid we haven't visited, go there
+    else :
+        node.Children.sort(key=lambda  child: child.UCB1)              
+        node.Visits += 1
+        return node.Children[-1]
+    
+
+
+# this expands a single node, saves memory
+def monte_expand_single(node):
+
+    # UCB for unexplored nodes is inf, so always make a new one if we have the option
+    if len(node.Children) < len(node.GameNode.validMoves) : 
+        # make new child node
+        made_moves = []
+           
+        for child_node in node.Children :
+            made_moves.append(child_node.GameNode.moveHistory[-1])
+             
+        for move in node.GameNode.validMoves :
+            if move not in made_moves :
+                node.Children.append(monteNode(makeMoveNewBoard(node.GameNode, move), node))    
+                break               
+   
+    return node
+
 
 def backpropogate_node(node, winloss):
     
-    # if the node last move was player 2  
+    # last move was player 2
     if len(node.GameNode.moveHistory) % 2 == 0 :
         if winloss == 2 : 
             node.WonPlayouts += 1
         elif winloss == 1 : 
             node.WonPlayouts -= 1
-    # if the node last move was player 1  
-    elif len(node.GameNode.moveHistory) % 2 != 0 :
+    
+    # last move was player 1
+    elif len(node.GameNode.moveHistory) % 2 == 1 :
         if winloss == 1 : 
             node.WonPlayouts += 1
         elif winloss == 2 : 
             node.WonPlayouts -= 1
 
-    # non root node 
+    node.calculateUCB1()
+    # if we haven't reached the root of the tree, return the parent so we can keep recursing
     if node.Parent != None :
-        node.calculateUCB1()
-        backpropogate_node(node.Parent, winloss)
+        return node.Parent
     
-    # root node
-    # you can print this, however prints take a lot of time
-    else :
-        print("I've simulated {} games.".format(global_playouts), end="\r", flush=True)
+    # we actually shouldn't hit this as we won't call if there is a parent
+    # but why not put it here, costs nothing and prevents an error...
+    else : 
+        return node
 
 
 # using a global tree root will allow us to re use the tree. this will be a huge efficiency improvement
-def monte_runner(gameNode, allowed_playouts):
+def monte_runner(gameNode, allocated_time):
     global global_playouts
     global last_selected_node
     tree_root = None
@@ -113,11 +139,39 @@ def monte_runner(gameNode, allowed_playouts):
     
 
     print("Simulating games...")
-    # unless a child has a won game, if so just go to that one! 
-    # also we know the root of the tree, no need to select so we start with expansion
-    while global_playouts <  allowed_playouts :
-        monte_expand(tree_root)
-    
+    start_time = time.time()
+
+    search_locked = True
+    while search_locked :
+              
+        tree_root = monte_select_single(tree_root)
+              
+        # if draw back propogate a draw
+        if len(tree_root.GameNode.validMoves) == 0 and tree_root.GameNode.winState == 0 :
+            # printGameState(tree_root.GameNode)
+            global_playouts += 1
+            tree_root.Visits += 1
+            while tree_root.Parent != None :     
+                tree_root = backpropogate_node(tree_root, 0)
+            if time.time() - start_time > allocated_time :
+                search_locked = False
+        
+        # if win backprop a win    
+        elif tree_root.GameNode.winState != 0 :
+            winner = tree_root.GameNode.winState
+            # printGameState(tree_root.GameNode)
+            global_playouts += 1
+            tree_root.Visits += 1
+            while tree_root.Parent != None :    
+                tree_root = backpropogate_node(tree_root, winner)
+            if time.time() - start_time > allocated_time :
+                search_locked = False
+        
+        else :
+            tree_root = monte_expand_single(tree_root)
+
+        
+    # by end of that above loop, we should be back with root node
     # pick the node visited most, if UBC theory is correct this is best node
     tree_root.Children.sort(key=lambda child: child.Visits)
     best_move = tree_root.Children[-1].GameNode.moveHistory[-1]
@@ -130,7 +184,9 @@ def monte_runner(gameNode, allowed_playouts):
     # print("My favorite move is {} with {} percent wins".format(coordinates_to_display(best_move), tree_root.Children[-1].WonPlayouts / global_playouts * 100))
     # print("Its UBC1 score is {}".format(tree_root.Children[-1].UCB1))
     # print("Reused Tree Data: {}".format(reusedData))
+    # total_time = time.time() - start_time
+    # print("Tree search took {} seconds to run {} simulations.".format(total_time, global_playouts))
     # input()
-    global_playouts = 0
-
+    
+    global_playouts = 0  
     return best_move

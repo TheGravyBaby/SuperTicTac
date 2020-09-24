@@ -2,8 +2,7 @@ import os
 import sys
 from superTicTacNodes import *
 from superTicTacConsole import *
-# from superTicTacMonteNo import*
-from superTicTacMonteNoRecur import *
+from superTicTacMonte import*
 
 initial_board = [ [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9, [0]*9]
 initial_history = []

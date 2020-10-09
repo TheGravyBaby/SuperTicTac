@@ -29,6 +29,14 @@ def monte_select(node):
     if len(node.Children) == 0 :
         return node
     
+    # if one of our kids has a winning move, make the move
+    # before this, the monte would still bias non winning moves
+    # due to UCB1 exploration bias
+    for child in node.Children :
+        if child.GameNode.winState != 0 :
+            node.Visits += 1
+            return child
+    
     # if we do have children to visit, sort and pick highest ucb1
     else :
         node.Children.sort(key=lambda  child: child.UCB1)              
@@ -45,6 +53,15 @@ def monte_expand(node):
 
 def monte_select_single(node):
 
+    # if one of our kids has a winning move, make the move
+    # before this, the monte would still bias non winning moves
+    # due to UCB1 exploration bias
+    if len(node.Children) > 0 :
+        for child in node.Children :
+            if child.GameNode.winState != 0 :
+                node.Visits += 1
+                return child
+    
     # if we have maxed out our children, pick one
     if len(node.Children) >= len(node.GameNode.validMoves) :
         # every time we select a new node, make sure we give the parent a visit
@@ -54,7 +71,7 @@ def monte_select_single(node):
     
     # if we haven't made all our kids, yet we have visited 
     # all out existing kids, pass on for expansion
-    elif node.Visits >= len(node.Children) :
+    if node.Visits >= len(node.Children) :
         return node
     
     # we have a kid we haven't visited, go there

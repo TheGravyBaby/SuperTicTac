@@ -27,7 +27,7 @@ def main():
     if (x == "1"):
         startNewGameHuman()
     if (x == "2"):
-        print("How many seconds would you like the Monte to search for a move? (1-600)")
+        print("How many seconds would you like the Monte to search for a move?")
         allowed_playouts = input()
         try:
             allowed_playouts = int(allowed_playouts)

@@ -1,4 +1,5 @@
-S# SuperTicTac
+# SuperTicTac
+
 Super Tic Tac Toe is a much more complex game than the orignial. Like regular Tic Tac Toe (abbreviated TTT), Super Tic Tac Toe (STTT) has players attempting to
 win three squares in a row on a game board. However, each of the squares themselves are a TTT board, and to win said square you must win TTT on the squars board. The final
 caviate is that that whatever move was last played dictates the viable moves that are allowed for the next move. Wikipedia explains better than I do : 

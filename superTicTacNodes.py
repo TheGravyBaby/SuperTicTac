@@ -94,9 +94,6 @@ def projectCoordinateToCurrentBoardZone(move):
 def makeWinArray(board):
 
     winArray = [[0]*3, [0]*3, [0]*3]
-
-    # imagine 1,1
-    # starts wit h
     for i in range(3):
         for j in range(3):
             for k in range(3):

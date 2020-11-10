@@ -21,29 +21,8 @@ class monteNode():
     def calculateUCB1(self):
         self.UCB1 = self.WonPlayouts / self.Visits + m.pow(((2 * m.log(self.Parent.Visits)) / self.Visits), .5)
  
-    
-# SELECT! Pick a node to keep traveling down
-def monte_select(node):
-    
-    # if we have no children to visit, we'll have to make some
-    if len(node.Children) == 0 :
-        return node
-    
-    # if we do have children to visit, sort and pick highest ucb1
-    else :
-        node.Children.sort(key=lambda  child: child.UCB1)              
-        node.Visits += 1
-        return node.Children[-1]
-    
-# EXPAND!  For valid moves in that game node, make child nodes           
-def monte_expand(node):
-    if len(node.Children) < len(node.GameNode.validMoves) : 
-        # make new child nodes
-        for move in node.GameNode.validMoves : 
-            node.Children.append(monteNode(makeMoveNewBoard(node.GameNode, move), node))       
-    return node
 
-def monte_select_single(node):
+def monte_select(node):
 
     # if we have maxed out our children, pick one
     if len(node.Children) >= len(node.GameNode.validMoves) :
@@ -66,7 +45,7 @@ def monte_select_single(node):
 
 
 # this expands a single node, saves memory
-def monte_expand_single(node):
+def monte_expand(node):
 
     # UCB for unexplored nodes is inf, so always make a new one if we have the option
     if len(node.Children) < len(node.GameNode.validMoves) : 
@@ -144,7 +123,7 @@ def monte_runner(gameNode, allocated_time):
     search_locked = True
     while search_locked :
               
-        tree_root = monte_select_single(tree_root)
+        tree_root = monte_select(tree_root)
               
         # if draw back propogate a draw
         if len(tree_root.GameNode.validMoves) == 0 and tree_root.GameNode.winState == 0 :
@@ -168,7 +147,7 @@ def monte_runner(gameNode, allocated_time):
                 search_locked = False
         
         else :
-            tree_root = monte_expand_single(tree_root)
+            tree_root = monte_expand(tree_root)
 
         
     # by end of that above loop, we should be back with root node

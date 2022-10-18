@@ -146,7 +146,7 @@ def getUserInput(node):
 
                 if coordinateArray in node.validMoves:
                     try:
-                        makeMove(node, coordinateArray)
+                        node.makeMove(coordinateArray)
                     except:
                         printGameState(node)
                         print("Some fubar shit is afoot...")

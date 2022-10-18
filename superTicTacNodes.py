@@ -1,60 +1,131 @@
 import sys
 import copy
+from superTicTacConsole import * 
 
 # state of game with all the needed information to progress
 class GameNode:
     # nodes can be constructed using a gameState, a move history
-    def __init__(self, board, history):
+    def __init__(self, board, history, winArray):
         self.boardState = board
         self.moveHistory = history
-        self.winState = checkForWin(self.boardState)
-        self.validMoves = listValidMoves(self.boardState, self.moveHistory)
+        self.winArray = winArray
+        self.validMoves = []  
+        self.winState = 0
 
-# will list all valid moves given a board state and a history
-# moves are listed as [y, x]
-def listValidMoves(board, history):
-    validMoves = []
-    # if the game is won then return no valid moves
-    if len(history) > 0:
-        bigBoard = projectCoordinateToNextBoardZone(history[-1])
-        bb0 = bigBoard[0]
-        bb1 = bigBoard[1]
-        wins = makeWinArray(board)
-        # if the return board has already been won by either 1 or 2
-        if wins[bb0][bb1] == 1 or wins[bb0][bb1] == 2:
-            validMoves = validateAllPossible(board, history)
-        # if we weren't sent back to an invalid board, select all tiles from that board
+        self.checkForWin()
+        self.listValidMoves()
+
+    def makeMove(self, move):
+        if move not in self.validMoves : 
+            raise Exception("invalid move supplied")
+        self.moveHistory.append(move)
+        if len(self.moveHistory) % 2 == 0 or (len(self.moveHistory) == 0):
+            self.boardState[move[0]][move[1]] = 2
         else:
-            for i in range(3):
-                for j in range(3):
-                    move = []
-                    move.append(3 * bigBoard[0] + i)
-                    move.append(3 * bigBoard[1] + j)
-                    if move not in history:
-                        validMoves.append(move)
-    else:
-        validMoves = validateAllPossible(board, history)
-    return validMoves
+            self.boardState[move[0]][move[1]] = 1  
+        self.checkForWin()
+        self.listValidMoves()
+
+    # will detect if the last played board zone contains a win
+    # it then projects those wins to a normal ticTacToe board
+    # exploit the +1 +2 +3 feature of a small board section
+    # horizontile relationship [a,b], [a+1,b], [a+2,b]
+    # vertical relationship [a, b], [a, b+1], [a, b+2]
+    # diagonal relationship [a,b], [a+1,b+1], [a+1,b+1] also works with minus
+    # win array can be visualized as
+        # [0,0,0],
+        # [0,0,0],
+        # [0,0,0]
+    def updateWinArray(self):
+        if self.moveHistory != [] : 
+            # zone for the 3 by 3 board
+            # we are only going to evaluate a win condition on the zone last played 
+            # there's no reason to waste time checking every zone
+            zone = projectCoordinateToBoardZone(self.moveHistory[-1])
+
+            # these are the start coordinates for our 9 by 9 board
+            # always the top left corner of a zone
+            x0 = zone[0] * 3
+            y0 =  zone[1] * 3
+
+            for i in range(3) :    
+                # horizontal check
+                if self.boardState[x0][y0 + i] == self.boardState[x0 + 1][y0 + i] == self.boardState[x0 + 2][y0 + i] != 0:
+                    self.winArray[zone[0]][zone[1]] = self.boardState[x0 + i][y0]
+                    return
+                # vertical check
+                if self.boardState[x0 + i][y0] == self.boardState[x0 + i][y0 + 1] == self.boardState[x0 + i][y0 + 2] != 0:
+                    self.winArray[zone[0]][zone[1]] = self.boardState[x0 + i][y0]
+                    return
+
+            # forward diagnonal
+            if self.boardState[x0][y0] == self.boardState[x0 + 1][y0 + 1] == self.boardState[x0 + 2][y0 + 2] != 0: 
+                self.winArray[zone[0]][zone[1]] = self.boardState[x0][y0]
+                return
+
+            # back diagonal
+            if self.boardState[x0 + 2][y0] == self.boardState[x0 + 1][y0 + 1] == self.boardState[x0][y0 + 2] != 0: 
+                self.winArray[zone[0]][zone[1]] = self.boardState[x0 + 2][y0]
+                return
+    
+    # using the win array board, we check to see if there are any big board wins
+    def checkForWin(self):
+        self.updateWinArray()
+        win = self.winArray
+        for i in range(3):
+            if win[i][0] == win[i][1] == win[i][2] != 0:         # check the three horizontiles
+                self.winState = win[i][0]
+                return                                           # simply returns the player number for the win
+            if win[0][i] == win[1][i] == win[2][i] != 0:         # check the three verticals 
+                 self.winState = win[0][i]
+                 return
+        if win[0][0] == win[1][1] == win[2][2] != 0:            # check for each diagonal
+             self.winState = win[1][1]
+             return
+        if win[2][0] == win[1][1] == win[0][2] != 0:
+             self.winState = win[1][1]
+             return
+
+    # will list all valid moves given a board state and a history
+    # moves are listed as [y, x]
+    def listValidMoves(self):
+        self.validMoves = []
+        # if the game is won then return no valid moves
+        if len(self.moveHistory) > 0:
+            bigBoard = projectCoordinateToNextBoardZone(self.moveHistory[-1])
+            bb0 = bigBoard[0]
+            bb1 = bigBoard[1]
+            # if the return board has already been won by either 1 or 2
+            if self.winArray[bb0][bb1] == 1 or self.winArray[bb0][bb1] == 2:
+                self.validateAllPossible()
+            # if we weren't sent back to an invalid board, select all tiles from that board
+            else:
+                for i in range(3):
+                    for j in range(3):
+                        move = []
+                        move.append(3 * bigBoard[0] + i)
+                        move.append(3 * bigBoard[1] + j)
+                        if move not in self.moveHistory:
+                            self.validMoves.append(move)
+        else:
+             self.validateAllPossible()
 
 
-# usually called when sent to an invalid square or at the start of a game
-# validates any coordinate that hasn't been played on a valid board zone
-def validateAllPossible(board, history):
-    validMoves = []
-    wins = makeWinArray(board)
-    for i in range(9):
-        for j in range(9):
-            # make all tiles playable
-            move = [i,j]
-            # except tiles that fall in the win zone, which is any big board win, mapped to all its smaller coordinates
-            moveBB = projectCoordinateToCurrentBoardZone(move)
-            moveBB0 = moveBB[0]
-            moveBB1 = moveBB[1]
-            # so 01 bigBoard is 00. if win[0][0] is 0, make a play
-            if wins[moveBB0][moveBB1] == 0 and move not in history:
-                validMoves.append(move)
-    return validMoves
-
+    # usually called when sent to an invalid square or at the start of a game
+    # validates any coordinate that hasn't been played on a valid board zone
+    def validateAllPossible(self):
+        self.validMoves = []     
+        for i in range(9):
+            for j in range(9):
+                # make all tiles playable
+                move = [i,j]
+                # except tiles that fall in the win zone, which is any big board win, mapped to all its smaller coordinates
+                moveBB = projectCoordinateToBoardZone(move)
+                moveBB0 = moveBB[0]
+                moveBB1 = moveBB[1]
+                # so 01 bigBoard is 00. if win[0][0] is 0, make a play
+                if self.winArray[moveBB0][moveBB1] == 0 and move not in self.moveHistory:
+                    self.validMoves.append(move)
 
 # every move will effect the next move by projecting to a different board zone
 # this takes a move and finds the next zone to be played
@@ -73,7 +144,8 @@ def projectCoordinateToNextBoardZone(move):
 
 # similar to the previous function, this one just finds which zone the move
 # was played in, rather than projecting the next move
-def projectCoordinateToCurrentBoardZone(move):
+# output will be a coordinate like [1,2] symbolizing which board we played on
+def projectCoordinateToBoardZone(move):
     output = []
     for x in move:
         if 0 <= x < 3:
@@ -83,70 +155,3 @@ def projectCoordinateToCurrentBoardZone(move):
         if 6 <= x < 9:
             output.append(2)
     return output
-
-
-# will detect if any of the board zones have been won
-# it then projects those wins to a normal ticTacToe board
-# exploit the +1 +2 +3 feature of a small board section
-# horizontile relationship [a,b], [a+1,b], [a+2,b]
-# vertical relationship [a, b], [a, b+1], [a, b+2]
-# diagonal relationship [a,b], [a+1,b+1], [a+1,b+1] also works with minus
-def makeWinArray(board):
-
-    winArray = [[0]*3, [0]*3, [0]*3]
-    for i in range(3):
-        for j in range(3):
-            for k in range(3):
-                # vertical, check three columns
-                if board[3 * i][3 * j + k] == board[3 * i + 1][3 * j + k] == board[3 * i + 2][3 * j + k] != 0:
-                    winArray[i][j] = board[3 * i][3 * j + k]
-                # horizontile check three rows
-                if board[3 * i + k][3 * j] == board[3 * i + k][3 * j + 1] == board[3 * i + k][3 * j + 2] != 0:
-                    winArray[i][j] = board[3 * i + k][3 * j]
-            # forward diagonal, only two diag tests vs three straight ones
-            if board[3 * i][3 * j] == board[3 * i + 1][3 * j + 1] == board[3 * i + 2][3 * j + 2] != 0:
-                    winArray[i][j] = board[3 * i][3 * j]
-            # backdiagonal
-            if board[3 * i + 2][3 * j] == board[3 * i + 1][3 * j + 1] == board[3 * i][3 * j + 2] != 0:
-                    winArray[i][j] = board[3 * i + 2][3 * j]
-    return winArray
-
-
-# using the win array board, we check to see if there are any big board wins
-def checkForWin(board):
-    win = makeWinArray(board)
-    for i in range(3):
-        if win[i][0] == win[i][1] == win[i][2] != 0:         # check the three horizontiles
-            return win[i][0]                                 # simply returns the player number for the win
-        if win[0][i] == win[1][i] == win[2][i] != 0:         # check the three verticals 
-            return win[0][i]
-    if win[0][0] == win[1][1] == win[2][2] != 0:            # check for each diagonal
-        return win[1][1]
-    if win[2][0] == win[1][1] == win[0][2] != 0:
-        return win[1][1]
-    else:
-        return 0
-
-# given a node and a move, we output the conditions of a node
-# we can either set the current node equal to this new node (new turn)
-# or we can use this to create any additional nodes needed for the Monte
-def makeMove(node, move):
-    node.moveHistory.append(move)
-    if len(node.moveHistory) % 2 == 0 or (len(node.moveHistory) == 0):
-        node.boardState[move[0]][move[1]] = 2
-    else:
-        node.boardState[move[0]][move[1]] = 1
-    node.winState = checkForWin(node.boardState)
-    node.validMoves = listValidMoves(node.boardState, node.moveHistory)     # update move list
-    
-# idk if this is necessary, but intuitively seems to help with the creation of new nodes
-def makeMoveNewBoard(node, move):    
-    node2 = copy.deepcopy(node)
-    node2.moveHistory.append(move)
-    if len(node2.moveHistory) % 2 == 0 or (len(node2.moveHistory) == 0):
-        node2.boardState[move[0]][move[1]] = 2
-    else:
-        node2.boardState[move[0]][move[1]] = 1
-    node2.winState = checkForWin(node2.boardState)
-    node2.validMoves = listValidMoves(node2.boardState, node2.moveHistory)     # update move list
-    return node2                                                              

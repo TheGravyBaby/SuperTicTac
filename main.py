@@ -15,8 +15,11 @@ print(" ")
 def main():
     clear()
 
-    startNewGameMonte(2, 30)
+    # comment out to play real games
+    startNewGameMonte(2, 10)
+    ###
 
+    # uncomment for real games 
     # print("Welcome to Super Tic Tac Toe, what would you like to do?")
     # print("1. Play a Human.")
     # print("2. Play Monte Carlo AI.")

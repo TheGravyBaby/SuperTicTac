@@ -25,7 +25,8 @@ class MonteNode():
         self.ucb1 = self.wonPlayouts / self.visits + m.pow(((2 * m.log(self.parent.visits)) / self.visits), .5)
  
 
-def monte_runner(gameNode, allocated_time) : 
+def monte_runner(gameNode, allocated_time) :
+    global global_playouts 
     tree_root = MonteNode(gameNode, None)
 
     print("Simulating games...")
@@ -57,6 +58,7 @@ def monte_runner(gameNode, allocated_time) :
             # printGameState(completedGame.gameNode)
             # print("Completed Game")
 
+        global_playouts += 1
         tree_root = backpropogate(completedGame, completedGame.gameNode.winState)
 
         if time.time() - start_time > allocated_time :
@@ -84,7 +86,7 @@ def monte_runner(gameNode, allocated_time) :
 def selection(monteNode):
     monteNode.visits += 1
     # this monteNode has moves that have not been explored, return it for expansion
-    if len(monteNode.children) <= len(monteNode.gameNode.validMoves) :
+    if len(monteNode.children) < len(monteNode.gameNode.validMoves) :
         return monteNode
     else : 
         # this monteNode has explored all possible moves, pick the one with the best ucb score
@@ -95,8 +97,9 @@ def expansion(monteNode):
     # making randomized moves helps a lot with tree parallelization
     for move in monteNode.simulatedMoves :
         movesToExplore.remove(move)
-    
-    randomIndex = random.randint(0, len(movesToExplore) - 1)
+
+    randomIndex = random.randint(0, (len(movesToExplore) - 1))
+
     monteNode.simulatedMoves.append(movesToExplore[randomIndex])
     newgameNode = GameNode(copy.deepcopy(monteNode.gameNode.boardState), copy.deepcopy(monteNode.gameNode.moveHistory), copy.deepcopy(monteNode.gameNode.winArray))
     newgameNode.makeMove(movesToExplore[randomIndex])

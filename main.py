@@ -15,49 +15,48 @@ print(" ")
 def main():
     clear()
 
-    # comment out to play real games
-    startNewGameMonte(2, 10)
-    ###
+#     # comment out to play real games
+#     startNewGameMonte(2, 10)
 
     # uncomment for real games 
-    # print("Welcome to Super Tic Tac Toe, what would you like to do?")
-    # print("1. Play a Human.")
-    # print("2. Play Monte Carlo AI.")
-    # x = 0
-    # allowed_playouts = 0
-    # z = 0
+    print("Welcome to Super Tic Tac Toe, what would you like to do?")
+    print("1. Play a Human.")
+    print("2. Play Monte Carlo AI.")
+    x = 0
+    allowed_playouts = 0
+    z = 0
 
-    # x = input()
+    x = input()
 
-    # if (x == "1"):
-    #     startNewGameHuman()
-    # if (x == "2"):
-    #     print("How many seconds would you like the Monte to search for a move?")
-    #     allowed_playouts = input()
-    #     try:
-    #         allowed_playouts = int(allowed_playouts)
-    #     except: 
-    #         print("Follow instructions plz...")
-    #         input()
-    #         main()
+    if (x == "1"):
+        startNewGameHuman()
+    if (x == "2"):
+        print("How many seconds would you like the Monte to search for a move?")
+        allowed_playouts = input()
+        try:
+            allowed_playouts = int(allowed_playouts)
+        except: 
+            print("Follow instructions plz...")
+            input()
+            main()
         
-    #     print("Would you like to be player 1 or 2?")
-    #     z = input()
+        print("Would you like to be player 1 or 2?")
+        z = input()
         
-    #     if (z == "1"):
-    #         startNewGameMonte(1, allowed_playouts)
+        if (z == "1"):
+            startNewGameMonte(1, allowed_playouts)
 
-    #     if (z == "2"):
-    #         startNewGameMonte(2, allowed_playouts)
-    #     else :
-    #         print("Follow instructions plz...")
-    #         input()
-    #         main()
+        if (z == "2"):
+            startNewGameMonte(2, allowed_playouts)
+        else :
+            print("Follow instructions plz...")
+            input()
+            main()
 
-    # else:
-    #     print("Follow instructions plz...")
-    #     input()
-    #     main()
+    else:
+        print("Follow instructions plz...")
+        input()
+        main()
 
 def startNewGameHuman():
     gameNode = GameNode(initial_board, initial_history, [[0]*3, [0]*3, [0]*3])

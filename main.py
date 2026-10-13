@@ -102,6 +102,8 @@ def playGameMonte(node, player, iterations):
             else : 
                 move = monte_runner(node, iterations)
                 node.makeMove(move)
+                printGameState(node)
+
 
     else: 
         if node.winState == 0:

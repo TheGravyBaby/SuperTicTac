@@ -58,6 +58,8 @@ def printGameState(node):
     print("    1 2 3      4 5 6      7 8 9 ")
     print("--------------------------------")
 
+    emptytile = '\u00b7'
+
     # for every row of the array
     for i in range(len(board)):
         if i == 0:
@@ -72,28 +74,27 @@ def printGameState(node):
             print("{} | ".format(i + 1), end="")
 
         for j in range(len(board[i])):
-            if (j + 1) % 3 != 0:
-                if board[i][j] == 1:
-                    print(colors.bg.red + str(board[i][j]) + colors.reset, end=' ')
-                if board[i][j] == 2:
-                    print(colors.bg.blue + str(board[i][j]) + colors.reset, end=' ')
-                if board[i][j] == 0:
-                    if [i,j] in validMoves:
-                        print(colors.fg.yellow + str(board[i][j]) + colors.reset, end=' ')
-                    else:
-                        print(str(board[i][j]), end=' ')
+            zoneWinner = node.winArray[i // 3][j // 3]
+            tile = emptytile if board[i][j] == 0 else str(board[i][j])
 
-            # if it factorable by 3, print extra space
-            else:
-                if board[i][j] == 1:
-                    print(colors.bg.red + str(board[i][j]) + colors.reset, end='      ')
-                if board[i][j] == 2:
-                    print(colors.bg.blue + str(board[i][j]) + colors.reset, end='      ')
-                if board[i][j] == 0:
-                    if [i,j] in validMoves:
-                        print(colors.fg.yellow + str(board[i][j]) + colors.reset, end='      ')
-                    else:
-                        print(str(board[i][j]), end='      ')
+            # a won tile is rendered in the winners color
+            if zoneWinner == 1:
+                tile = colors.fg.red + tile + colors.reset
+            elif zoneWinner == 2:
+                tile = colors.fg.blue + tile + colors.reset
+            elif board[i][j] == 1:
+                tile = colors.bg.red + tile + colors.reset  
+            elif board[i][j] == 2:
+                tile = colors.bg.blue + tile + colors.reset
+            elif [i,j] in validMoves:
+                tile = colors.fg.yellow + tile + colors.reset
+
+            # if factored by 3, as in another board, print more space
+            if (j + 1) % 3 != 0:
+                print(tile, end=' ')
+            else: 
+                print(tile, end='      ')
+
     print("")
     print("---------------------------------")
 

@@ -49,11 +49,11 @@ class GameNode:
             y0 =  zone[1] * 3
 
             for i in range(3) :    
-                # horizontal check
-                if self.boardState[x0][y0 + i] == self.boardState[x0 + 1][y0 + i] == self.boardState[x0 + 2][y0 + i] != 0:
-                    self.winArray[zone[0]][zone[1]] = self.boardState[x0 + i][y0]
-                    return
                 # vertical check
+                if self.boardState[x0][y0 + i] == self.boardState[x0 + 1][y0 + i] == self.boardState[x0 + 2][y0 + i] != 0:
+                    self.winArray[zone[0]][zone[1]] = self.boardState[x0][y0 + i]
+                    return
+                # horizontile check
                 if self.boardState[x0 + i][y0] == self.boardState[x0 + i][y0 + 1] == self.boardState[x0 + i][y0 + 2] != 0:
                     self.winArray[zone[0]][zone[1]] = self.boardState[x0 + i][y0]
                     return

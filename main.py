@@ -30,7 +30,7 @@ def main():
 
     if (x == "1"):
         startNewGameHuman()
-    if (x == "2"):
+    elif (x == "2"):
         print("How many seconds would you like the Monte to search for a move?")
         allowed_playouts = input()
         try:
@@ -45,8 +45,7 @@ def main():
         
         if (z == "1"):
             startNewGameMonte(1, allowed_playouts)
-
-        if (z == "2"):
+        elif (z == "2"):
             startNewGameMonte(2, allowed_playouts)
         else :
             print("Follow instructions plz...")
@@ -103,7 +102,6 @@ def playGameMonte(node, player, iterations):
                 move = monte_runner(node, iterations)
                 node.makeMove(move)
                 printGameState(node)
-
 
     else: 
         if node.winState == 0:

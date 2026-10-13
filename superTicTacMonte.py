@@ -25,8 +25,21 @@ class MonteNode():
  
 
 def monte_runner(gameNode, allocated_time) :
-    global global_playouts 
-    tree_root = MonteNode(gameNode, None)
+    global global_playouts
+    global last_selected_monteNode
+    tree_root = None
+
+    # reuse the part of last turn's tree that matches the move the human just played
+    if last_selected_monteNode != None :
+        for child in last_selected_monteNode.children :
+            if child.gameNode.moveHistory == gameNode.moveHistory :
+                tree_root = child
+                tree_root.parent = None
+                break
+
+    # first move, or the human played a move we never simulated
+    if tree_root == None :
+        tree_root = MonteNode(gameNode, None)
 
     print("Simulating games...")
     start_time = time.time()
@@ -70,6 +83,7 @@ def monte_runner(gameNode, allocated_time) :
     # pick the monteNode visited most, if UBC theory is correct this is best monteNode
     tree_root.children.sort(key=lambda child: child.visits)
     best_move = tree_root.children[-1].gameNode.moveHistory[-1]
+    last_selected_monteNode = tree_root.children[-1]
     
     print("My favorite move is {} with {} wins and {} percent wins".format(coordinates_to_display(best_move), tree_root.children[-1].wonPlayouts, tree_root.children[-1].wonPlayouts / global_playouts * 100))
     print("Its UBC1 score is {}".format(tree_root.children[-1].ucb1))

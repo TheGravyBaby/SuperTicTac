@@ -55,11 +55,11 @@ def monte_runner(gameNode, allocated_time) :
             # printGameState(expandedNode.gameNode)
             # print("Expanded node")
             completedGame = simulation(expandedNode)
+            tree_root = backpropogate(completedGame, completedGame.gameNode.winState)
             # printGameState(completedGame.gameNode)
             # print("Completed Game")
 
         global_playouts += 1
-        tree_root = backpropogate(completedGame, completedGame.gameNode.winState)
 
         if time.time() - start_time > allocated_time :
             search_locked = False

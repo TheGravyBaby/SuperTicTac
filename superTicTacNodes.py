@@ -105,7 +105,7 @@ class GameNode:
                         move = []
                         move.append(3 * bigBoard[0] + i)
                         move.append(3 * bigBoard[1] + j)
-                        if move not in self.moveHistory:
+                        if self.boardState[move[0]][move[1]] == 0:
                             self.validMoves.append(move)
                 # if we are sent to a full board with no winner, open all valid moves
                 if len(self.validMoves) == 0:
@@ -127,34 +127,17 @@ class GameNode:
                 moveBB0 = moveBB[0]
                 moveBB1 = moveBB[1]
                 # so 01 bigBoard is 00. if win[0][0] is 0, make a play
-                if self.winArray[moveBB0][moveBB1] == 0 and move not in self.moveHistory:
+                if self.winArray[moveBB0][moveBB1] == 0 and self.boardState[i][j] == 0:
                     self.validMoves.append(move)
 
 # every move will effect the next move by projecting to a different board zone
 # this takes a move and finds the next zone to be played
 def projectCoordinateToNextBoardZone(move):
-    output = []
-    for x in move:
-        if x == 0 or x == 3 or x == 6:
-            output.append(0)
-        if x == 1 or x == 4 or x == 7:
-            output.append(1)
-        if x == 2 or x == 5 or x == 8:
-            output.append(2)
-    # returns a point on the big board such as 2,2, which would be the right hand corner
-    return output
+   return [move[0] % 3, move[1] % 3]
 
 
 # similar to the previous function, this one just finds which zone the move
 # was played in, rather than projecting the next move
 # output will be a coordinate like [1,2] symbolizing which board we played on
 def projectCoordinateToBoardZone(move):
-    output = []
-    for x in move:
-        if 0 <= x < 3:
-            output.append(0)
-        if 3 <= x < 6:
-            output.append(1)
-        if 6 <= x < 9:
-            output.append(2)
-    return output
+    return [move[0] // 3, move[1] // 3]

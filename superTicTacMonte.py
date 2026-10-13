@@ -3,7 +3,6 @@ from superTicTacConsole import *
 import math as m 
 import random
 import time
-import numpy as np
 
 global_playouts = 0
 last_selected_monteNode = None
@@ -99,7 +98,7 @@ def selection(monteNode):
         return selection(monteNode.children[-1])
 
 def expansion(monteNode):
-    movesToExplore = copy.deepcopy(monteNode.gameNode.validMoves)
+    movesToExplore = list(monteNode.gameNode.validMoves)
     # making randomized moves helps a lot with tree parallelization
     for move in monteNode.simulatedMoves :
         movesToExplore.remove(move)
@@ -107,7 +106,7 @@ def expansion(monteNode):
     randomIndex = random.randint(0, (len(movesToExplore) - 1))
 
     monteNode.simulatedMoves.append(movesToExplore[randomIndex])
-    newgameNode = GameNode(copy.deepcopy(monteNode.gameNode.boardState), copy.deepcopy(monteNode.gameNode.moveHistory), copy.deepcopy(monteNode.gameNode.winArray))
+    newgameNode = GameNode([row[:] for row in monteNode.gameNode.boardState], list(monteNode.gameNode.moveHistory), [row[:] for row in monteNode.gameNode.winArray])
     newgameNode.makeMove(movesToExplore[randomIndex])
     monteNode.children.append(MonteNode(newgameNode, monteNode))   
 

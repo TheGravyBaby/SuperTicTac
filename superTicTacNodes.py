@@ -107,6 +107,9 @@ class GameNode:
                         move.append(3 * bigBoard[1] + j)
                         if move not in self.moveHistory:
                             self.validMoves.append(move)
+                # if we are sent to a full board with no winner, open all valid moves
+                if len(self.validMoves) == 0:
+                    self.validateAllPossible()
         else:
              self.validateAllPossible()
 

@@ -50,6 +50,9 @@ def monte_runner(gameNode, allocated_time) :
         if selectedNodeHasWin != None :
              selectedNodeHasWin.visits += 1
              tree_root = backpropogate(selectedNodeHasWin, selectedNodeHasWin.gameNode.winState)
+        # selected node is an end game, score it
+        elif selectedNode.gameNode.winState != 0 or len(selectedNode.gameNode.validMoves) == 0 :
+            tree_root = backpropogate(selectedNode, selectedNode.gameNode.winState)
         else : 
             expandedNode = expansion(selectedNode)
             # printGameState(expandedNode.gameNode)
@@ -85,6 +88,9 @@ def monte_runner(gameNode, allocated_time) :
 # select a monteNode without a win 
 def selection(monteNode):
     monteNode.visits += 1
+    # this is a finished game, nothing lower on the tree to explore
+    if monteNode.gameNode.winState != 0 or len(monteNode.gameNode.validMoves) == 0 :
+        return monteNode
     # this monteNode has moves that have not been explored, return it for expansion
     if len(monteNode.children) < len(monteNode.gameNode.validMoves) :
         return monteNode
